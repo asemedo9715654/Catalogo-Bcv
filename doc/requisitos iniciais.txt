@@ -1,0 +1,19 @@
+Desenvolta um app c# web que faz a catalogacao de uma base de dados nais concretamente data warehouse, onde permite catalogacao de  varias base de dados.
+Para efectuar o catalogue e pedido os seguintes dados:
+• servidor
+• base de dados.
+• utilizador.
+• palavra passe.
+
+Principais funcionalidades.
+• adicao d3 base de addos.
+• descricao dos campos.
+• adicao de alias.
+• tudo tem de ser auditavel.
+• adicao de utilizadores.
+• visualizacao da base de dados catalogada em modo de grafico por tabela facto e suas tabelas relacionadasf.
+Stack tecnologico
+• base de dados : sql server via docker.
+• liguagem  : c# .
+• dotnet core.
+• mvc .
