@@ -47,39 +47,74 @@ namespace CatalogoBCV.Services
                 ORDER BY 
                     t.TABLE_SCHEMA, t.TABLE_NAME, c.ORDINAL_POSITION";
 
-            using var cmd = new SqlCommand(query, conn);
-            using var reader = await cmd.ExecuteReaderAsync();
-
-            Table? currentTable = null;
-
-            while (await reader.ReadAsync())
+            using (var cmd = new SqlCommand(query, conn))
+            using (var reader = await cmd.ExecuteReaderAsync())
             {
-                var schema = reader.GetString(0);
-                var tableName = reader.GetString(1);
-                var columnName = reader.GetString(2);
-                var dataType = reader.GetString(3);
-                var isNullable = reader.GetString(4) == "YES";
-                var isPrimaryKey = reader.GetInt32(5) == 1;
+                Table? currentTable = null;
 
-                if (currentTable == null || currentTable.Name != tableName || currentTable.Schema != schema)
+                while (await reader.ReadAsync())
                 {
-                    currentTable = new Table
+                    var schema = reader.GetString(0);
+                    var tableName = reader.GetString(1);
+                    var columnName = reader.GetString(2);
+                    var dataType = reader.GetString(3);
+                    var isNullable = reader.GetString(4) == "YES";
+                    var isPrimaryKey = reader.GetInt32(5) == 1;
+
+                    if (currentTable == null || currentTable.Name != tableName || currentTable.Schema != schema)
                     {
-                        Schema = schema,
-                        Name = tableName,
-                        Type = "Table",
-                        Columns = new List<Column>()
-                    };
-                    tables.Add(currentTable);
-                }
+                        currentTable = new Table
+                        {
+                            Schema = schema,
+                            Name = tableName,
+                            Type = "Table",
+                            Columns = new List<Column>()
+                        };
+                        tables.Add(currentTable);
+                    }
 
-                currentTable.Columns.Add(new Column
+                    currentTable.Columns.Add(new Column
+                    {
+                        Name = columnName,
+                        DataType = dataType,
+                        IsNullable = isNullable,
+                        IsPrimaryKey = isPrimaryKey
+                    });
+                }
+            }
+
+            // Get Row Counts
+            string rowCountQuery = @"
+                SELECT 
+                    s.name AS SchemaName, 
+                    t.name AS TableName, 
+                    SUM(p.rows) AS [RowCount]
+                FROM 
+                    sys.tables t
+                    INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+                    INNER JOIN sys.indexes i ON t.object_id = i.object_id
+                    INNER JOIN sys.partitions p ON i.object_id = p.object_id AND i.index_id = p.index_id
+                WHERE 
+                    t.is_ms_shipped = 0 
+                    AND i.index_id < 2
+                GROUP BY 
+                    s.name, t.name";
+
+            using (var cmdCount = new SqlCommand(rowCountQuery, conn))
+            using (var readerCount = await cmdCount.ExecuteReaderAsync())
+            {
+                while (await readerCount.ReadAsync())
                 {
-                    Name = columnName,
-                    DataType = dataType,
-                    IsNullable = isNullable,
-                    IsPrimaryKey = isPrimaryKey
-                });
+                    var schema = readerCount.GetString(0);
+                    var tableName = readerCount.GetString(1);
+                    var rowCount = readerCount.GetInt64(2);
+
+                    var table = tables.FirstOrDefault(t => t.Schema == schema && t.Name == tableName);
+                    if (table != null)
+                    {
+                        table.RowCount = rowCount;
+                    }
+                }
             }
 
             return tables;

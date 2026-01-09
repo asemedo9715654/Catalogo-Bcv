@@ -10,6 +10,7 @@ namespace CatalogoBCV.Models
         public string Type { get; set; } = "Table"; // Table, View
         public string? Description { get; set; }
         public string? Alias { get; set; }
+        public long? RowCount { get; set; }
         public bool IsFactTable { get; set; } // Flag manual ou inferida
 
         public int? DomainId { get; set; }

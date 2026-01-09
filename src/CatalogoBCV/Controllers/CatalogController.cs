@@ -112,7 +112,8 @@ namespace CatalogoBCV.Controllers
                 int newTablesCount = 0;
                 int newColumnsCount = 0;
                 int updatedColumnsCount = 0;
-                bool hasChanges = false;
+                bool hasSchemaChanges = false;
+                bool hasStatsChanges = false;
 
                 foreach (var freshTable in freshTables)
                 {
@@ -123,10 +124,16 @@ namespace CatalogoBCV.Controllers
                         // New table
                         db.Tables.Add(freshTable);
                         newTablesCount++;
-                        hasChanges = true;
+                        hasSchemaChanges = true;
                     }
                     else
                     {
+                        if (existingTable.RowCount != freshTable.RowCount)
+                        {
+                            existingTable.RowCount = freshTable.RowCount;
+                            hasStatsChanges = true;
+                        }
+
                         // Check for new or updated columns
                         foreach (var freshColumn in freshTable.Columns)
                         {
@@ -135,7 +142,7 @@ namespace CatalogoBCV.Controllers
                             {
                                 existingTable.Columns.Add(freshColumn);
                                 newColumnsCount++;
-                                hasChanges = true;
+                                hasSchemaChanges = true;
                             }
                             else
                             {
@@ -147,14 +154,14 @@ namespace CatalogoBCV.Controllers
                                     existingColumn.DataType = freshColumn.DataType;
                                     existingColumn.IsNullable = freshColumn.IsNullable;
                                     updatedColumnsCount++;
-                                    hasChanges = true;
+                                    hasSchemaChanges = true;
                                 }
                             }
                         }
                     }
                 }
 
-                if (hasChanges)
+                if (hasSchemaChanges)
                 {
                     // Audit Log
                     _context.AuditLogs.Add(new AuditLog
@@ -165,10 +172,19 @@ namespace CatalogoBCV.Controllers
                         Username = User.Identity?.Name ?? "System",
                         NewValue = $"{newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas."
                     });
+                    
+                    TempData["SuccessMessage"] = $"Atualização concluída: {newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas.";
+                }
 
+                if (hasSchemaChanges || hasStatsChanges)
+                {
                     db.LastUpdated = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = $"Atualização concluída: {newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas.";
+                    
+                    if (!hasSchemaChanges && hasStatsChanges)
+                    {
+                         TempData["InfoMessage"] = "Estatísticas atualizadas com sucesso.";
+                    }
                 }
                 else
                 {
