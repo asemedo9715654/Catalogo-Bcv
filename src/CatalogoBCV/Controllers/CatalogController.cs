@@ -1,0 +1,321 @@
+using CatalogoBCV.Data;
+using CatalogoBCV.Models;
+using CatalogoBCV.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+
+namespace CatalogoBCV.Controllers
+{
+    [Authorize]
+    public class CatalogController : Controller
+    {
+        private readonly CatalogContext _context;
+        private readonly IMetadataService _metadataService;
+
+        public CatalogController(CatalogContext context, IMetadataService metadataService)
+        {
+            _context = context;
+            _metadataService = metadataService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            return View(await _context.CatalogDatabases.ToListAsync());
+        }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CatalogDatabase catalogDatabase)
+        {
+            if (!catalogDatabase.UseWindowsAuthentication)
+            {
+                if (string.IsNullOrEmpty(catalogDatabase.Username))
+                    ModelState.AddModelError("Username", "Utilizador é obrigatório para autenticação SQL.");
+                if (string.IsNullOrEmpty(catalogDatabase.EncryptedPassword))
+                    ModelState.AddModelError("EncryptedPassword", "Password é obrigatória para autenticação SQL.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                // Construir connection string para teste
+                string connectionString;
+                if (catalogDatabase.UseWindowsAuthentication)
+                {
+                    connectionString = $"Server={catalogDatabase.Server};Database={catalogDatabase.DatabaseName};Integrated Security=True;TrustServerCertificate=True;";
+                }
+                else
+                {
+                    connectionString = $"Server={catalogDatabase.Server};Database={catalogDatabase.DatabaseName};User Id={catalogDatabase.Username};Password={catalogDatabase.EncryptedPassword};TrustServerCertificate=True;";
+                }
+
+                if (await _metadataService.TestConnectionAsync(connectionString))
+                {
+                    // Importar metadados
+                    var tables = await _metadataService.GetMetadataAsync(connectionString);
+                    catalogDatabase.Tables = tables;
+                    catalogDatabase.CreatedAt = DateTime.UtcNow;
+                    catalogDatabase.LastUpdated = DateTime.UtcNow;
+                    catalogDatabase.CreatedBy = User.Identity?.Name ?? "System";
+
+                    _context.Add(catalogDatabase);
+                    
+                    // Audit Log
+                    _context.AuditLogs.Add(new AuditLog
+                    {
+                        Action = "Create",
+                        EntityType = "CatalogDatabase",
+                        EntityId = catalogDatabase.DatabaseName,
+                        Username = User.Identity?.Name ?? "System"
+                    });
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Não foi possível conectar à base de dados.");
+                }
+            }
+            return View(catalogDatabase);
+        }
+
+        public async Task<IActionResult> Update(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var db = await _context.CatalogDatabases
+                .Include(d => d.Tables)
+                .ThenInclude(t => t.Columns)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (db == null) return NotFound();
+
+            string connectionString;
+            if (db.UseWindowsAuthentication)
+            {
+                connectionString = $"Server={db.Server};Database={db.DatabaseName};Integrated Security=True;TrustServerCertificate=True;";
+            }
+            else
+            {
+                connectionString = $"Server={db.Server};Database={db.DatabaseName};User Id={db.Username};Password={db.EncryptedPassword};TrustServerCertificate=True;";
+            }
+
+            if (await _metadataService.TestConnectionAsync(connectionString))
+            {
+                var freshTables = await _metadataService.GetMetadataAsync(connectionString);
+                int newTablesCount = 0;
+                int newColumnsCount = 0;
+                int updatedColumnsCount = 0;
+                bool hasChanges = false;
+
+                foreach (var freshTable in freshTables)
+                {
+                    var existingTable = db.Tables.FirstOrDefault(t => t.Schema == freshTable.Schema && t.Name == freshTable.Name);
+
+                    if (existingTable == null)
+                    {
+                        // New table
+                        db.Tables.Add(freshTable);
+                        newTablesCount++;
+                        hasChanges = true;
+                    }
+                    else
+                    {
+                        // Check for new or updated columns
+                        foreach (var freshColumn in freshTable.Columns)
+                        {
+                            var existingColumn = existingTable.Columns.FirstOrDefault(c => c.Name == freshColumn.Name);
+                            if (existingColumn == null)
+                            {
+                                existingTable.Columns.Add(freshColumn);
+                                newColumnsCount++;
+                                hasChanges = true;
+                            }
+                            else
+                            {
+                                if (existingColumn.IsPrimaryKey != freshColumn.IsPrimaryKey ||
+                                    existingColumn.DataType != freshColumn.DataType ||
+                                    existingColumn.IsNullable != freshColumn.IsNullable)
+                                {
+                                    existingColumn.IsPrimaryKey = freshColumn.IsPrimaryKey;
+                                    existingColumn.DataType = freshColumn.DataType;
+                                    existingColumn.IsNullable = freshColumn.IsNullable;
+                                    updatedColumnsCount++;
+                                    hasChanges = true;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (hasChanges)
+                {
+                    // Audit Log
+                    _context.AuditLogs.Add(new AuditLog
+                    {
+                        Action = "Update",
+                        EntityType = "CatalogDatabase",
+                        EntityId = db.DatabaseName,
+                        Username = User.Identity?.Name ?? "System",
+                        NewValue = $"{newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas."
+                    });
+
+                    db.LastUpdated = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = $"Atualização concluída: {newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas.";
+                }
+                else
+                {
+                    TempData["InfoMessage"] = "Nenhuma alteração detectada.";
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Não foi possível conectar à base de dados para atualização.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var db = await _context.CatalogDatabases
+                .Include(d => d.Tables)
+                .ThenInclude(t => t.Columns)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (db == null) return NotFound();
+
+            return View(db);
+        }
+
+        public async Task<IActionResult> TableDetails(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var table = await _context.Tables
+                .Include(t => t.Columns)
+                    .ThenInclude(c => c.Comments)
+                .Include(t => t.Columns)
+                    .ThenInclude(c => c.Tags)
+                .Include(t => t.CatalogDatabase)
+                .Include(t => t.Comments)
+                .Include(t => t.Tags)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (table == null) return NotFound();
+
+            return View(table);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTableComment(int tableId, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return RedirectToAction(nameof(TableDetails), new { id = tableId });
+
+            var table = await _context.Tables.FindAsync(tableId);
+            if (table == null) return NotFound();
+
+            var comment = new TableComment
+            {
+                TableId = tableId,
+                Content = content,
+                Author = User.Identity?.Name ?? "System",
+                CreatedAt = DateTime.Now
+            };
+
+            _context.TableComments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(TableDetails), new { id = tableId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddColumnComment(int columnId, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) 
+            {
+                 var col = await _context.Columns.FindAsync(columnId);
+                 return RedirectToAction(nameof(TableDetails), new { id = col?.TableId });
+            }
+
+            var column = await _context.Columns.Include(c => c.Table).FirstOrDefaultAsync(c => c.Id == columnId);
+            if (column == null) return NotFound();
+
+            var comment = new ColumnComment
+            {
+                ColumnId = columnId,
+                Content = content,
+                Author = User.Identity?.Name ?? "System",
+                CreatedAt = DateTime.Now
+            };
+
+            _context.ColumnComments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(TableDetails), new { id = column.TableId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTableTag(int tableId, string tagName)
+        {
+            if (string.IsNullOrWhiteSpace(tagName)) return RedirectToAction(nameof(TableDetails), new { id = tableId });
+
+            var table = await _context.Tables.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == tableId);
+            if (table == null) return NotFound();
+
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagName);
+            if (tag == null)
+            {
+                tag = new Tag { Name = tagName };
+                _context.Tags.Add(tag);
+                await _context.SaveChangesAsync(); // Save to get Id
+            }
+
+            if (!table.Tags.Any(t => t.Id == tag.Id))
+            {
+                table.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(TableDetails), new { id = tableId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddColumnTag(int columnId, string tagName)
+        {
+            if (string.IsNullOrWhiteSpace(tagName)) 
+            {
+                 var col = await _context.Columns.FindAsync(columnId);
+                 return RedirectToAction(nameof(TableDetails), new { id = col?.TableId });
+            }
+
+            var column = await _context.Columns.Include(c => c.Tags).Include(c => c.Table).FirstOrDefaultAsync(c => c.Id == columnId);
+            if (column == null) return NotFound();
+
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagName);
+            if (tag == null)
+            {
+                tag = new Tag { Name = tagName };
+                _context.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            if (!column.Tags.Any(t => t.Id == tag.Id))
+            {
+                column.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(TableDetails), new { id = column.TableId });
+        }
+    }
+}

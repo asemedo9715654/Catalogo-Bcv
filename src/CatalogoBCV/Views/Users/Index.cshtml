@@ -1,0 +1,31 @@
+@model IEnumerable<CatalogoBCV.Models.User>
+
+@{
+    ViewData["Title"] = "Gestão de Utilizadores";
+}
+
+<h1>Gestão de Utilizadores</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Novo Utilizador</a>
+</p>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Ativo</th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>@item.Username</td>
+                <td>@item.Role</td>
+                <td>@item.IsActive</td>
+            </tr>
+    }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,50 @@
+@model CatalogoBCV.Models.CatalogDatabase
+
+@{
+    ViewData["Title"] = "Detalhes da Base";
+}
+
+<h1>@Model.DatabaseName (@Model.Server)</h1>
+
+<div>
+    <a asp-controller="Graph" asp-action="Index" asp-route-dbId="@Model.Id" class="btn btn-primary">Visualizar Gráfico</a>
+</div>
+
+<hr />
+
+<h3>Tabelas</h3>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Schema</th>
+                <th>Nome</th>
+                <th>Alias</th>
+                <th>Descrição</th>
+                <th>Colunas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var table in Model.Tables)
+            {
+                <tr>
+                    <td>@table.Schema</td>
+                    <td>@table.Name</td>
+                    <td>@table.Alias</td>
+                    <td>@table.Description</td>
+                    <td>
+                        <a asp-action="TableDetails" asp-route-id="@table.Id" class="btn btn-sm btn-outline-secondary">
+                            Ver Colunas (@table.Columns.Count)
+                        </a>
+                        @if (table.Name.StartsWith("fact", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <a asp-controller="Graph" asp-action="Index" asp-route-tableId="@table.Id" class="btn btn-sm btn-outline-info ms-1">
+                                Ver Gráfico
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
