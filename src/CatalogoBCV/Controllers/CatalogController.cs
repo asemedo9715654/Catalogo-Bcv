@@ -209,6 +209,7 @@ namespace CatalogoBCV.Controllers
                 .Include(t => t.CatalogDatabase)
                 .Include(t => t.Comments)
                 .Include(t => t.Tags)
+                .Include(t => t.Domain)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (table == null) return NotFound();

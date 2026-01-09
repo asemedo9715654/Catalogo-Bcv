@@ -1,6 +1,7 @@
 using CatalogoBCV.Data;
 using CatalogoBCV.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 
@@ -23,12 +24,13 @@ namespace CatalogoBCV.Controllers
             var table = await _context.Tables.Include(t => t.CatalogDatabase).FirstOrDefaultAsync(t => t.Id == id);
             if (table == null) return NotFound();
 
+            ViewData["DomainId"] = new SelectList(_context.Domains, "Id", "Name", table.DomainId);
             return View(table);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias")] Table tableDto)
+        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId")] Table tableDto)
         {
             if (id != tableDto.Id) return NotFound();
 
@@ -38,10 +40,12 @@ namespace CatalogoBCV.Controllers
             // Guardar valores antigos para auditoria
             var oldDescription = table.Description;
             var oldAlias = table.Alias;
+            var oldDomainId = table.DomainId;
 
             // Atualizar
             table.Description = tableDto.Description;
             table.Alias = tableDto.Alias;
+            table.DomainId = tableDto.DomainId;
 
             if (oldDescription != table.Description)
             {
@@ -65,6 +69,19 @@ namespace CatalogoBCV.Controllers
                     EntityId = table.Id.ToString(),
                     OldValue = oldAlias,
                     NewValue = table.Alias,
+                    Username = User.Identity?.Name ?? "System"
+                });
+            }
+
+            if (oldDomainId != table.DomainId)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateDomain",
+                    EntityType = "Table",
+                    EntityId = table.Id.ToString(),
+                    OldValue = oldDomainId?.ToString(),
+                    NewValue = table.DomainId?.ToString(),
                     Username = User.Identity?.Name ?? "System"
                 });
             }

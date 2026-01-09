@@ -1,0 +1,65 @@
+@model CatalogoBCV.Models.Domain
+
+@{
+    ViewData["Title"] = "Detalhes do Domínio";
+}
+
+<h1>Detalhes</h1>
+
+<div>
+    <h4>Domínio</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <h4>Tabelas neste Domínio</h4>
+    @if (Model.Tables != null && Model.Tables.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Schema</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var table in Model.Tables)
+                {
+                    <tr>
+                        <td>@table.Schema</td>
+                        <td>@table.Name</td>
+                        <td>@table.Description</td>
+                        <td>
+                            <a asp-controller="Catalog" asp-action="TableDetails" asp-route-id="@table.Id">Ver Tabela</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>Nenhuma tabela associada a este domínio.</p>
+    }
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Editar</a> |
+    <a asp-action="Index">Voltar</a>
+</div>

@@ -12,6 +12,9 @@ namespace CatalogoBCV.Models
         public string? Alias { get; set; }
         public bool IsFactTable { get; set; } // Flag manual ou inferida
 
+        public int? DomainId { get; set; }
+        public Domain? Domain { get; set; }
+
         public List<Column> Columns { get; set; } = new();
         public List<TableComment> Comments { get; set; } = new();
         public List<Tag> Tags { get; set; } = new();

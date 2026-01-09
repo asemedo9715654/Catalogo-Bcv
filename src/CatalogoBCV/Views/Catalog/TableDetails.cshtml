@@ -23,6 +23,18 @@
         <dt class="col-sm-2">Alias</dt>
         <dd class="col-sm-10">@Model.Alias</dd>
 
+        <dt class="col-sm-2">Domínio</dt>
+        <dd class="col-sm-10">
+            @if (Model.Domain != null)
+            {
+                <a asp-controller="Domains" asp-action="Details" asp-route-id="@Model.DomainId">@Model.Domain.Name</a>
+            }
+            else
+            {
+                <span class="text-muted">Não classificado</span>
+            }
+        </dd>
+
         <dt class="col-sm-2">Descrição</dt>
         <dd class="col-sm-10">@Model.Description</dd>
         

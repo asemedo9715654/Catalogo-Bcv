@@ -14,6 +14,7 @@ namespace CatalogoBCV.Data
         public DbSet<TableComment> TableComments { get; set; }
         public DbSet<ColumnComment> ColumnComments { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<Domain> Domains { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
