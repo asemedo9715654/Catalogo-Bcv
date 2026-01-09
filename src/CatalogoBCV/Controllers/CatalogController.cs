@@ -199,6 +199,40 @@ namespace CatalogoBCV.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Search(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
+            {
+                return Json(new { databases = new List<object>(), tables = new List<object>(), columns = new List<object>() });
+            }
+
+            var term = query.Trim();
+
+            var databases = await _context.CatalogDatabases
+                .Where(d => d.DatabaseName.Contains(term) || d.Server.Contains(term))
+                .Select(d => new { id = d.Id, name = d.DatabaseName, server = d.Server, type = "Database" })
+                .Take(5)
+                .ToListAsync();
+
+            var tables = await _context.Tables
+                .Include(t => t.CatalogDatabase)
+                .Where(t => t.Name.Contains(term) || (t.Alias != null && t.Alias.Contains(term)) || (t.Description != null && t.Description.Contains(term)))
+                .Select(t => new { id = t.Id, name = t.Name, schema = t.Schema, databaseName = t.CatalogDatabase.DatabaseName, type = "Table" })
+                .Take(10)
+                .ToListAsync();
+
+            var columns = await _context.Columns
+                .Include(c => c.Table)
+                .ThenInclude(t => t.CatalogDatabase)
+                .Where(c => c.Name.Contains(term) || (c.Alias != null && c.Alias.Contains(term)) || (c.Description != null && c.Description.Contains(term)))
+                .Select(c => new { id = c.TableId, tableName = c.Table.Name, columnName = c.Name, databaseName = c.Table.CatalogDatabase.DatabaseName, type = "Column" })
+                .Take(10)
+                .ToListAsync();
+
+            return Json(new { databases, tables, columns });
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

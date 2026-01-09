@@ -39,6 +39,15 @@
                             </li>
                         }
                     </ul>
+                    
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <form class="d-flex mx-auto position-relative" style="min-width: 300px;">
+                            <input class="form-control" type="search" placeholder="Pesquisar bases, tabelas, colunas..." aria-label="Search" id="globalSearchInput" autocomplete="off">
+                            <div id="searchResults" class="list-group position-absolute w-100 shadow" style="top: 100%; z-index: 1050; display: none; max-height: 400px; overflow-y: auto;"></div>
+                        </form>
+                    }
+
                     <ul class="navbar-nav">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
