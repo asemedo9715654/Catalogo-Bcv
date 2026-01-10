@@ -147,10 +147,12 @@ namespace CatalogoBCV.Controllers
                             else
                             {
                                 if (existingColumn.IsPrimaryKey != freshColumn.IsPrimaryKey ||
+                                    existingColumn.IsForeignKey != freshColumn.IsForeignKey ||
                                     existingColumn.DataType != freshColumn.DataType ||
                                     existingColumn.IsNullable != freshColumn.IsNullable)
                                 {
                                     existingColumn.IsPrimaryKey = freshColumn.IsPrimaryKey;
+                                    existingColumn.IsForeignKey = freshColumn.IsForeignKey;
                                     existingColumn.DataType = freshColumn.DataType;
                                     existingColumn.IsNullable = freshColumn.IsNullable;
                                     updatedColumnsCount++;
