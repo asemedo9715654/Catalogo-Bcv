@@ -19,7 +19,7 @@ namespace CatalogoBCV.Controllers
         // GET: Domains
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Domains.ToListAsync());
+            return View(await _context.Domains.Include(d => d.Tables).ToListAsync());
         }
 
         // GET: Domains/Details/5
