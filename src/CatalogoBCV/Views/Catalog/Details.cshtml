@@ -48,6 +48,7 @@
                                         <th>Schema</th>
                                         <th>Nome</th>
                                         <th>Alias</th>
+                                        <th>Status</th>
                                         <th>Registros</th>
                                         <th>Descrição</th>
                                         <th style="width: 150px">Ações</th>
@@ -60,6 +61,23 @@
                                             <td>@table.Schema</td>
                                             <td>@table.Name</td>
                                             <td>@table.Alias</td>
+                                            <td>
+                                                @switch (table.Status)
+                                                {
+                                                    case CatalogoBCV.Models.TableStatus.Certificada:
+                                                        <span class="badge bg-success">Certificada</span>
+                                                        break;
+                                                    case CatalogoBCV.Models.TableStatus.EmValidacao:
+                                                        <span class="badge bg-warning">Em validação</span>
+                                                        break;
+                                                    case CatalogoBCV.Models.TableStatus.Obsoleta:
+                                                        <span class="badge bg-danger">Obsoleta</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@table.Status</span>
+                                                        break;
+                                                }
+                                            </td>
                                             <td>@table.RowCount?.ToString("N0")</td>
                                             <td>@table.Description</td>
                                             <td>
