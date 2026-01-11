@@ -4,3 +4,38 @@ Get-Process -Id 45620
 
 
 Stop-Process -Id 45620 -Force
+
+__________________________________________________________________________________
+
+
+
+
+
+
+dotnet ef migrations add InitialCreate
+
+dotnet ef database update
+
+dotnet ef migrations list
+
+dotnet ef migrations remove
+
+dotnet ef database update NomeDaMigration
+
+dotnet ef database update 0
+
+
+
+Adicionar migration no Infra, usando API como startup
+dotnet ef migrations add InitialCreate \
+  --project MinhaApp.Infra \
+  --startup-project MinhaApp.Api \
+  --context AppDbContext \
+  --output-dir Database/Migrations
+
+
+  Atualizar banco
+dotnet ef database update \
+  --project MinhaApp.Infra \
+  --startup-project MinhaApp.Api \
+  --context AppDbContext
