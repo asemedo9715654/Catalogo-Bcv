@@ -96,17 +96,23 @@
                             
                             <dt class="col-sm-3">Tags</dt>
                             <dd class="col-sm-9">
-                                @foreach (var tag in Model.Tags)
-                                {
-                                    <span class="badge bg-secondary me-1">@tag.Name</span>
-                                }
-                                <form asp-action="AddTableTag" method="post" class="d-inline ms-2">
-                                    <input type="hidden" name="tableId" value="@Model.Id" />
-                                    <div class="input-group input-group-sm d-inline-flex w-auto">
-                                        <input type="text" name="tagName" class="form-control" placeholder="Nova Tag" required style="width: 100px;" />
-                                        <button type="submit" class="btn btn-outline-secondary">+</button>
-                                    </div>
-                                </form>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    @foreach (var tag in Model.Tags)
+                                    {
+                                        <span class="badge rounded-pill bg-indigo bg-opacity-10 text-indigo border border-indigo shadow-sm px-3 py-2">
+                                            <i class="bi bi-tag-fill me-1"></i> @tag.Name
+                                        </span>
+                                    }
+                                    <form asp-action="AddTableTag" method="post" class="d-inline-flex">
+                                        <input type="hidden" name="tableId" value="@Model.Id" />
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" name="tagName" class="form-control form-control-sm rounded-start-pill ps-3" placeholder="Nova Tag" required style="width: 120px;" />
+                                            <button type="submit" class="btn btn-outline-secondary rounded-end-pill pe-3">
+                                                <i class="bi bi-plus-lg"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </dd>
                         </dl>
                     </div>
@@ -130,13 +136,11 @@
                                 <thead>
                                     <tr>
                                         <th>Nome</th>
-                                        <th>Tipo</th>
-                                        <th>Permite Null</th>
-                                        <th>Alias</th>
+                                        <th style="width: 10%;">Tipo</th>
+                                        <th style="width: 10%;" class="text-center">Permite Null</th>
+                                        <th style="width: 15%;">Alias</th>
                                         <th>Descrição</th>
-                                        <th style="width: 200px;">Tags</th>
-                                        <th style="width: 300px;">Comentários</th>
-                                        <th>Ações</th>
+                                        <th style="width: 100px;" class="text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -163,45 +167,18 @@
                                                 }
                                             </td>
                                             <td>@col.DataType</td>
-                                            <td>@(col.IsNullable ? "Sim" : "Não")</td>
+                                            <td class="text-center">@(col.IsNullable ? "Sim" : "Não")</td>
                                             <td>@col.Alias</td>
                                             <td>@col.Description</td>
-                                            <td>
-                                                <div class="mb-1">
-                                                    @foreach (var tag in col.Tags)
-                                                    {
-                                                        <span class="badge bg-secondary">@tag.Name</span>
-                                                    }
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm">
+                                                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modal-col-@col.Id" title="Ver Detalhes">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <a asp-controller="Metadata" asp-action="EditColumn" asp-route-id="@col.Id" class="btn btn-outline-primary" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
                                                 </div>
-                                                <form asp-action="AddColumnTag" method="post">
-                                                    <input type="hidden" name="columnId" value="@col.Id" />
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="text" name="tagName" class="form-control" placeholder="Tag" required />
-                                                        <button type="submit" class="btn btn-outline-secondary">+</button>
-                                                    </div>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                <div class="mb-1" style="max-height: 100px; overflow-y: auto;">
-                                                    <ul class="list-unstyled small mb-0">
-                                                        @foreach (var comment in col.Comments)
-                                                        {
-                                                            <li class="mb-1 border-bottom pb-1">
-                                                                <strong>@comment.Author:</strong> @comment.Content
-                                                            </li>
-                                                        }
-                                                    </ul>
-                                                </div>
-                                                <form asp-action="AddColumnComment" method="post">
-                                                    <input type="hidden" name="columnId" value="@col.Id" />
-                                                    <div class="input-group input-group-sm">
-                                                        <input type="text" name="content" class="form-control" placeholder="Comentário" required />
-                                                        <button type="submit" class="btn btn-outline-primary">+</button>
-                                                    </div>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                <a asp-controller="Metadata" asp-action="EditColumn" asp-route-id="@col.Id" class="btn btn-sm btn-outline-primary">Editar</a>
                                             </td>
                                         </tr>
                                     }
@@ -236,19 +213,27 @@
                     <div class="card-header">
                         <h3 class="card-title">Comentários</h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body bg-light p-3" style="max-height: 500px; overflow-y: auto;">
                         @if (Model.Comments.Any())
                         {
-                            <div class="timeline">
-                                @foreach (var comment in Model.Comments)
+                            <div class="d-flex flex-column gap-3">
+                                @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
                                 {
-                                    <div>
-                                        <i class="bi bi-chat-left-text bg-blue"></i>
-                                        <div class="timeline-item">
-                                            <span class="time"><i class="bi bi-clock"></i> @comment.CreatedAt</span>
-                                            <h3 class="timeline-header"><strong>@comment.Author</strong> comentou</h3>
-                                            <div class="timeline-body">
-                                                @comment.Content
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle bg-primary bg-gradient d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                @comment.Author.Substring(0, 1).ToUpper()
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-2">
+                                            <div class="card border-0 shadow-sm mb-0">
+                                                <div class="card-header bg-white py-1 px-2 border-bottom-0 d-flex justify-content-between align-items-center">
+                                                    <span class="fw-bold text-primary small">@comment.Author</span>
+                                                    <small class="text-muted" style="font-size: 0.7rem;">@comment.CreatedAt.ToString("g")</small>
+                                                </div>
+                                                <div class="card-body py-2 px-2">
+                                                    <p class="card-text small text-secondary">@comment.Content</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -257,15 +242,20 @@
                         }
                         else
                         {
-                            <p class="text-muted">Sem comentários.</p>
+                            <div class="text-center py-4">
+                                <i class="bi bi-chat-dots text-muted display-6"></i>
+                                <p class="text-muted mt-2 small">Seja o primeiro a comentar!</p>
+                            </div>
                         }
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer bg-white">
                         <form asp-action="AddTableComment" method="post">
                             <input type="hidden" name="tableId" value="@Model.Id" />
                             <div class="input-group">
-                                <input type="text" name="content" class="form-control" placeholder="Adicionar comentário..." required />
-                                <button type="submit" class="btn btn-primary">Adicionar</button>
+                                <input type="text" name="content" class="form-control" placeholder="Escreva um comentário..." required />
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -280,6 +270,88 @@
         </div>
     </div>
 </section>
+
+<!-- Modals for Column Details -->
+@foreach (var col in Model.Columns)
+{
+    <div class="modal fade" id="modal-col-@col.Id" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes da Coluna: @col.Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 border-end">
+                            <h6><i class="bi bi-tags me-1"></i> Tags</h6>
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                @if (col.Tags.Any())
+                                {
+                                    foreach (var tag in col.Tags)
+                                    {
+                                        <span class="badge rounded-pill bg-light text-dark border">@tag.Name</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted small fst-italic">Sem tags</span>
+                                }
+                            </div>
+                            <form asp-action="AddColumnTag" method="post">
+                                <input type="hidden" name="columnId" value="@col.Id" />
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="tagName" class="form-control form-control-sm" placeholder="Nova Tag" required />
+                                    <button type="submit" class="btn btn-outline-secondary">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-chat-left-text me-1"></i> Comentários</h6>
+                            <div class="mb-3 bg-light p-2 rounded" style="max-height: 250px; overflow-y: auto;">
+                                @if (col.Comments.Any())
+                                {
+                                    <ul class="list-group list-group-flush bg-transparent">
+                                        @foreach (var comment in col.Comments.OrderByDescending(c => c.CreatedAt))
+                                        {
+                                            <li class="list-group-item p-2 bg-white rounded mb-2 border shadow-sm">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <strong class="small text-primary">@comment.Author</strong>
+                                                    <small class="text-muted" style="font-size: 0.75em;">@comment.CreatedAt.ToString("dd/MM/yy HH:mm")</small>
+                                                </div>
+                                                <p class="mb-0 small text-break">@comment.Content</p>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-3">
+                                        <span class="text-muted small fst-italic">Sem comentários</span>
+                                    </div>
+                                }
+                            </div>
+                            <form asp-action="AddColumnComment" method="post">
+                                <input type="hidden" name="columnId" value="@col.Id" />
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="content" class="form-control" placeholder="Adicionar comentário..." required />
+                                    <button type="submit" class="btn btn-outline-primary">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @section Scripts {
     <script>
