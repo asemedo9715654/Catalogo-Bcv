@@ -4,34 +4,58 @@
     ViewData["Title"] = "Editar Metadados";
 }
 
-<h1>Editar Metadados</h1>
-
-<h4 class="text-muted mb-4">Coluna: @Model.Name (Tabela: @Model.Table.Name)</h4>
-<hr />
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card-custom">
-            <form asp-action="EditColumn">
-                <input type="hidden" asp-for="Id" />
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                
-                <div class="form-group mb-3">
-                    <label asp-for="Alias" class="form-label"></label>
-                    <input asp-for="Alias" class="form-control" />
-                    <span asp-validation-for="Alias" class="text-danger"></span>
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Editar Metadados</h3>
                 </div>
-                
-                <div class="form-group mb-3">
-                    <label asp-for="Description" class="form-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-controller="Catalog" asp-action="Index">Catálogo</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Catalog" asp-action="TableDetails" asp-route-id="@Model.TableId">Tabela</a></li>
+                        <li class="breadcrumb-item active">Editar Coluna</li>
+                    </ol>
                 </div>
-                
-                <div class="form-group mt-4 d-flex justify-content-between align-items-center">
-                    <a asp-controller="Catalog" asp-action="TableDetails" asp-route-id="@Model.TableId" class="btn btn-outline-secondary">Cancelar</a>
-                    <input type="submit" value="Guardar" class="btn btn-primary px-4" />
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">@Model.Name <small>(@Model.Table.Name)</small></h3>
+                    </div>
+                    <form asp-action="EditColumn">
+                        <div class="card-body">
+                            <input type="hidden" asp-for="Id" />
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            
+                            <div class="form-group mb-3">
+                                <label asp-for="Alias" class="form-label"></label>
+                                <input asp-for="Alias" class="form-control" />
+                                <span asp-validation-for="Alias" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label asp-for="Description" class="form-label"></label>
+                                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <a asp-controller="Catalog" asp-action="TableDetails" asp-route-id="@Model.TableId" class="btn btn-secondary">Cancelar</a>
+                            <input type="submit" value="Guardar" class="btn btn-primary float-end" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

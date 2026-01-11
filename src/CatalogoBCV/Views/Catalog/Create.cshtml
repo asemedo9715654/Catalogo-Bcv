@@ -4,58 +4,83 @@
     ViewData["Title"] = "Nova Conexão";
 }
 
-<h1>Nova Conexão</h1>
-
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card-custom">
-            <h4 class="mb-4">Detalhes da Conexão</h4>
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                
-                <div class="row">
-                    <div class="col-md-6 form-group mb-3">
-                        <label asp-for="Server" class="form-label"></label>
-                        <input asp-for="Server" class="form-control" placeholder="Ex: localhost, 192.168.1.1" />
-                        <span asp-validation-for="Server" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6 form-group mb-3">
-                        <label asp-for="DatabaseName" class="form-label"></label>
-                        <input asp-for="DatabaseName" class="form-control" placeholder="Nome da Base de Dados" />
-                        <span asp-validation-for="DatabaseName" class="text-danger"></span>
-                    </div>
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Nova Conexão</h3>
                 </div>
-                
-                <div class="form-group form-check mt-3 mb-4 p-3 bg-light rounded">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="UseWindowsAuthentication" id="UseWindowsAuth" /> 
-                        <strong>Usar Autenticação Windows</strong>
-                    </label>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-action="Index">Catálogo</a></li>
+                        <li class="breadcrumb-item active">Nova Conexão</li>
+                    </ol>
                 </div>
-
-                <div id="SqlAuthFields">
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label asp-for="Username" class="form-label"></label>
-                            <input asp-for="Username" class="form-control" />
-                            <span asp-validation-for="Username" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label asp-for="EncryptedPassword" class="form-label">Password</label>
-                            <input asp-for="EncryptedPassword" type="password" class="form-control" />
-                            <span asp-validation-for="EncryptedPassword" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group mt-4 d-flex justify-content-between align-items-center">
-                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-                    <input type="submit" value="Conectar e Catalogar" class="btn btn-primary px-4" />
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Detalhes da Conexão</h3>
+                    </div>
+                    <form asp-action="Create">
+                        <div class="card-body">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 form-group mb-3">
+                                    <label asp-for="Server" class="form-label"></label>
+                                    <input asp-for="Server" class="form-control" placeholder="Ex: localhost, 192.168.1.1" />
+                                    <span asp-validation-for="Server" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-6 form-group mb-3">
+                                    <label asp-for="DatabaseName" class="form-label"></label>
+                                    <input asp-for="DatabaseName" class="form-control" placeholder="Nome da Base de Dados" />
+                                    <span asp-validation-for="DatabaseName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" asp-for="UseWindowsAuthentication" id="UseWindowsAuth" /> 
+                                    <label class="form-check-label" for="UseWindowsAuth">
+                                        <strong>Usar Autenticação Windows</strong>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="SqlAuthFields">
+                                <div class="row">
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label asp-for="Username" class="form-label"></label>
+                                        <input asp-for="Username" class="form-control" />
+                                        <span asp-validation-for="Username" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 form-group mb-3">
+                                        <label asp-for="EncryptedPassword" class="form-label">Password</label>
+                                        <input asp-for="EncryptedPassword" type="password" class="form-control" />
+                                        <span asp-validation-for="EncryptedPassword" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary float-end">Conectar e Catalogar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

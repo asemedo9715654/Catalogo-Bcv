@@ -4,49 +4,88 @@
     ViewData["Title"] = "Detalhes da Base";
 }
 
-<h1>@Model.DatabaseName (@Model.Server)</h1>
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Detalhes da Base</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-action="Index">Catálogo</a></li>
+                        <li class="breadcrumb-item active">@Model.DatabaseName</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
-<div>
-    <a asp-controller="Graph" asp-action="Index" asp-route-dbId="@Model.Id" class="btn btn-primary">Visualizar Gráfico</a>
-</div>
-
-<hr />
-
-<h3>Tabelas</h3>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Schema</th>
-                <th>Nome</th>
-                <th>Alias</th>
-                <th>Registros</th>
-                <th>Descrição</th>
-                <th>Colunas</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var table in Model.Tables)
-            {
-                <tr>
-                    <td>@table.Schema</td>
-                    <td>@table.Name</td>
-                    <td>@table.Alias</td>
-                    <td>@table.RowCount?.ToString("N0")</td>
-                    <td>@table.Description</td>
-                    <td>
-                        <a asp-action="TableDetails" asp-route-id="@table.Id" class="btn btn-sm btn-outline-secondary">
-                            Ver Colunas (@table.Columns.Count)
-                        </a>
-                        @if (table.Name.StartsWith("fact", StringComparison.OrdinalIgnoreCase))
-                        {
-                            <a asp-controller="Graph" asp-action="Index" asp-route-tableId="@table.Id" class="btn btn-sm btn-outline-info ms-1">
-                                Ver Gráfico
-                            </a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-database me-2"></i>
+                    @Model.DatabaseName
+                    <small class="text-muted">(@Model.Server)</small>
+                </h3>
+                <div class="card-tools">
+                    <a asp-controller="Graph" asp-action="Index" asp-route-dbId="@Model.Id" class="btn btn-sm btn-primary">
+                        <i class="bi bi-diagram-3 me-1"></i> Visualizar Gráfico
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h4>Tabelas</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Schema</th>
+                                        <th>Nome</th>
+                                        <th>Alias</th>
+                                        <th>Registros</th>
+                                        <th>Descrição</th>
+                                        <th style="width: 150px">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var table in Model.Tables)
+                                    {
+                                        <tr>
+                                            <td>@table.Schema</td>
+                                            <td>@table.Name</td>
+                                            <td>@table.Alias</td>
+                                            <td>@table.RowCount?.ToString("N0")</td>
+                                            <td>@table.Description</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a asp-action="TableDetails" asp-route-id="@table.Id" class="btn btn-info" title="Ver Colunas">
+                                                        <i class="bi bi-table"></i>
+                                                    </a>
+                                                    @if (table.Name.StartsWith("fact", StringComparison.OrdinalIgnoreCase))
+                                                    {
+                                                        <a asp-controller="Graph" asp-action="Index" asp-route-tableId="@table.Id" class="btn btn-warning" title="Ver Gráfico">
+                                                            <i class="bi bi-diagram-3"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+            </div>
+        </div>
+    </div>
+</section>

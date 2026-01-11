@@ -8,7 +8,7 @@
   --text-light: #ffffff;
 }
 
-html {
+/* html {
   font-size: 14px;
   position: relative;
   min-height: 100%;
@@ -16,6 +16,16 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: var(--light-bg);
+  color: var(--text-dark);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+} */
+
+html {
+  font-size: 14px;
+}
+
+body {
   background-color: var(--light-bg);
   color: var(--text-dark);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
