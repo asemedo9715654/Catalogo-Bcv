@@ -1,5 +1,12 @@
 namespace CatalogoBCV.Models
 {
+    public enum TableStatus
+    {
+        EmValidacao,
+        Certificada,
+        Obsoleta
+    }
+
     public class Table
     {
         public int Id { get; set; }
@@ -12,6 +19,7 @@ namespace CatalogoBCV.Models
         public string? Alias { get; set; }
         public long? RowCount { get; set; }
         public bool IsFactTable { get; set; } // Flag manual ou inferida
+        public TableStatus Status { get; set; } = TableStatus.EmValidacao;
 
         public int? DomainId { get; set; }
         public Domain? Domain { get; set; }
