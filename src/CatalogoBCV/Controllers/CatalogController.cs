@@ -21,7 +21,10 @@ namespace CatalogoBCV.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.CatalogDatabases.ToListAsync());
+            var databases = await _context.CatalogDatabases
+                .Include(d => d.Tables)
+                .ToListAsync();
+            return View(databases);
         }
 
         public IActionResult Create()
