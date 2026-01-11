@@ -1,0 +1,6 @@
+Get-NetTCPConnection -LocalPort 5280 | Select-Object LocalAddress, LocalPort, State, OwningProcess
+
+Get-Process -Id 45620
+
+
+Stop-Process -Id 45620 -Force
