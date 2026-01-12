@@ -193,3 +193,28 @@ h1, h2, h3, h4, h5, h6 {
 .table-hover tbody tr:hover {
     background-color: rgba(255, 102, 0, 0.05);
 }
+
+/* Progress Bars */
+.progress {
+    height: 0.75rem;
+    background-color: #e9ecef;
+    border-radius: 8px;
+}
+.progress-sm {
+    height: 0.5rem;
+}
+.progress .progress-bar {
+    border-radius: 8px;
+}
+.progress-bar.bg-info {
+    background-color: var(--secondary-blue) !important;
+}
+.progress-bar.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+.progress-bar.bg-danger {
+    background-color: #e74a3b !important;
+}
+.progress-bar.bg-warning {
+    background-color: #f6c23e !important;
+}
