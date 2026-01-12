@@ -18,7 +18,7 @@ namespace CatalogoBCV.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int? dbId, int? tableId)
+        public async Task<IActionResult> Index(int? dbId, int? tableId, bool embedded = false)
         {
             if (dbId == null && tableId == null) return NotFound();
 
@@ -72,15 +72,16 @@ namespace CatalogoBCV.Controllers
 
             // Generate Mermaid definition
             var sb = new StringBuilder();
-            sb.AppendLine("classDiagram");
+            sb.Append("erDiagram\n");
 
             foreach (var table in tablesToShow)
             {
-                var rawName = $"{table.Schema}.{table.Name}";
-                var safeId = GetSafeId(rawName);
-                var label = rawName.Replace("\"", "'");
-
-                sb.AppendLine($"    class {safeId}[\"{label}\"] {{");
+                var safeName = $"T_{table.Id}";
+                // In erDiagram, entities are just names. We can't easily add a separate display label in standard ER 
+                // without using the alias feature which is sometimes flaky, but let's try standard syntax:
+                // Entity { type name PK }
+                
+                sb.Append($"    {safeName} {{\n");
 
                 foreach (var col in table.Columns.Take(20))
                 {
@@ -88,39 +89,40 @@ namespace CatalogoBCV.Controllers
                     var colName = col.Name ?? "Column";
 
                     colName = Regex.Replace(colName, @"[^a-zA-Z0-9_]", "_");
-                    colType = Regex.Replace(colType, @"[^a-zA-Z0-9_]", "");
-
-                    var suffix = "";
-                    if (col.IsPrimaryKey) suffix += " PK";
-                    if (col.IsForeignKey) suffix += " FK";
-
-                    sb.AppendLine($"        {colType} {colName}{suffix}");
+                    colType = Regex.Replace(colType, @"[^a-zA-Z0-9_]", "_");
+                    
+                    if (string.IsNullOrWhiteSpace(colType)) colType = "string";
+                    // ER diagram expects: type name [PK/FK]
+                    
+                    sb.Append($"        {colType} {colName}");
+                    
+                    if (col.IsPrimaryKey) sb.Append(" PK");
+                    else if (col.IsForeignKey) sb.Append(" FK");
+                    
+                    sb.Append("\n");
                 }
                 if (table.Columns.Count > 20)
                 {
-                    sb.AppendLine("        ...");
+                    sb.Append("        string more_columns...\n");
                 }
 
-                sb.AppendLine("    }");
+                sb.Append("    }\n");
             }
 
             foreach (var rel in relationships)
             {
-                var factRaw = $"{rel.Item1.Schema}.{rel.Item1.Name}";
-                var dimRaw = $"{rel.Item2.Schema}.{rel.Item2.Name}";
-
-                var factId = GetSafeId(factRaw);
-                var dimId = GetSafeId(dimRaw);
-
-                // Ensure we don't draw lines to tables not in the diagram (should generally be safe here)
-                // But specifically for 'Single Table' view, if FindRelationships found a match, it added it to relatedTables.
+                var factId = $"T_{rel.Item1.Id}";
+                var dimId = $"T_{rel.Item2.Id}";
                 
-                sb.AppendLine($"    {factId} --> {dimId} : {rel.Item3}");
+                var label = rel.Item3.Replace("\"", "'").Replace("\r", "").Replace("\n", "");
+                // Relationship: Fact }|--|| Dim : "uses"
+                sb.Append($"    {factId} }}|--|| {dimId} : \"{label}\"\n");
             }
 
             ViewBag.MermaidData = sb.ToString();
             ViewBag.DatabaseName = db.DatabaseName;
             ViewBag.DbId = db.Id;
+            ViewBag.Embedded = embedded;
 
             return View();
         }

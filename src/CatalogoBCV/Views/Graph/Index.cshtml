@@ -1,16 +1,94 @@
 @{
     ViewData["Title"] = $"Visualização: {ViewBag.DatabaseName}";
+    if ((ViewBag.Embedded as bool?) == true)
+    {
+        Layout = null;
+    }
 }
 
-<div>
-    <a asp-controller="Catalog" asp-action="Details" asp-route-id="@ViewBag.DbId" class="btn btn-secondary mb-3">Voltar</a>
-</div>
+@if ((ViewBag.Embedded as bool?) == true)
+{
+    @Html.Raw("<!DOCTYPE html>")
+    @Html.Raw("<html lang='pt-br'>")
+    @Html.Raw("<head>")
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        #mermaid-container { width: 100%; overflow: auto; min-height: 400px; }
+    </style>
+    @Html.Raw("</head>")
+    @Html.Raw("<body>")
+}
 
-<div class="mermaid">@Html.Raw(ViewBag.MermaidData)</div>
+@if ((ViewBag.Embedded as bool?) != true)
+{
+    <div>
+        <a asp-controller="Catalog" asp-action="Details" asp-route-id="@ViewBag.DbId" class="btn btn-secondary mb-3">Voltar</a>
+    </div>
+}
 
-@section Scripts {
-    <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-        mermaid.initialize({ startOnLoad: true });
-    </script>
+<div id="mermaid-container"></div>
+
+<!-- Safe data transfer using a non-executable script tag -->
+<script type="text/plain" id="mermaid-graph-data">
+@Html.Raw(ViewBag.MermaidData)
+</script>
+
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    
+    // Simple init usually works best for ER diagrams
+    mermaid.initialize({ 
+        startOnLoad: false,
+        theme: 'default'
+    });
+
+    const graphDefinition = document.getElementById('mermaid-graph-data').textContent.trim();
+    
+    const element = document.getElementById('mermaid-container');
+    
+    // Ensure element is visible before rendering
+    if (element.offsetParent === null) {
+        // Wait for tab switch if hidden
+        const observer = new MutationObserver((mutations) => {
+            if (element.offsetParent !== null) {
+                renderGraph();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
+        
+        // Also try immediate render if in iframe it might just need a moment
+        setTimeout(renderGraph, 500);
+    } else {
+        renderGraph();
+    }
+
+    async function renderGraph() {
+        try {
+            // Unique ID for each render to avoid conflicts
+            const id = 'graph-' + Math.floor(Math.random() * 10000);
+            const { svg } = await mermaid.render(id, graphDefinition);
+            element.innerHTML = svg;
+        } catch (error) {
+            console.error('Mermaid render error:', error);
+            element.innerHTML = `<div style="color: red; padding: 20px;">
+                <h3>Erro ao renderizar gráfico</h3>
+                <pre>${error.message}</pre>
+                <hr/>
+                <details>
+                    <summary>Definição do Gráfico</summary>
+                    <pre style="white-space: pre-wrap; font-size: 0.8em;">${graphDefinition.replace(/</g, '&lt;')}</pre>
+                </details>
+            </div>`;
+        }
+    }
+</script>
+
+@if ((ViewBag.Embedded as bool?) == true)
+{
+    @Html.Raw("</body>")
+    @Html.Raw("</html>")
 }
