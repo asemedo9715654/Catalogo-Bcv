@@ -1,9 +1,53 @@
+@inject CatalogoBCV.Services.ISettingsService SettingsService
+@{
+    var appTitle = await SettingsService.GetSettingAsync("AppTitle", "CatalogoBCV");
+    var theme = await SettingsService.GetSettingAsync("Theme", "light");
+    var primaryColor = await SettingsService.GetSettingAsync("PrimaryColor", "#0d6efd");
+    var headerColor = await SettingsService.GetSettingAsync("HeaderColor", "#ffffff");
+    var sidebarColor = await SettingsService.GetSettingAsync("SidebarColor", "#f8f9fa");
+
+    var bodyClass = theme == "dark" ? "layout-fixed sidebar-expand-lg bg-body-tertiary dark-mode" : "layout-fixed sidebar-expand-lg bg-body-tertiary";
+    // If adminlte uses data-bs-theme attribute, we might want to set that on html or body.
+    // Based on previous code, there was a dark mode toggle that probably toggles a class or attribute.
+    // Let's assume 'dark-mode' class on body or data-bs-theme="dark" on body.
+    // Checking adminlte v4 docs or usage, it often uses data-bs-theme="dark".
+}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="@theme">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CatalogoBCV</title>
+    <title>@ViewData["Title"] - @appTitle</title>
+    
+    <style>
+        :root {
+            --bs-primary: @primaryColor;
+            --bs-primary-rgb: @System.Drawing.ColorTranslator.FromHtml(primaryColor).R, @System.Drawing.ColorTranslator.FromHtml(primaryColor).G, @System.Drawing.ColorTranslator.FromHtml(primaryColor).B;
+            --app-header-bg: @headerColor;
+            --app-sidebar-bg: @sidebarColor;
+        }
+        
+        .app-header {
+            background-color: var(--app-header-bg) !important;
+        }
+        
+        .app-sidebar {
+            background-color: var(--app-sidebar-bg) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--bs-primary) !important;
+            border-color: var(--bs-primary) !important;
+        }
+        
+        .text-bg-primary {
+            background-color: var(--bs-primary) !important;
+        }
+        
+        a {
+            color: var(--bs-primary);
+        }
+    </style>
     
     <!-- Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fontsource/source-sans-3@5.0.12/index.css" />
@@ -100,11 +144,11 @@
         </nav>
 
         <!-- Sidebar -->
-        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="@theme">
             <div class="sidebar-brand">
                 <a href="@Url.Action("Index", "Home")" class="brand-link">
-                    <img src="~/images/logo.png" alt="CatalogoBCV Logo" class="brand-image opacity-75 shadow">
-                    <span class="brand-text fw-light">CatalogoBCV</span>
+                    <img src="~/images/logo.png" alt="@appTitle Logo" class="brand-image opacity-75 shadow">
+                    <span class="brand-text fw-light">@appTitle</span>
                 </a>
             </div>
             <div class="sidebar-wrapper">
@@ -141,6 +185,12 @@
                                 <a asp-controller="Users" asp-action="Index" class="nav-link">
                                     <i class="nav-icon bi bi-people"></i>
                                     <p>Utilizadores</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Settings" asp-action="Index" class="nav-link">
+                                    <i class="nav-icon bi bi-gear"></i>
+                                    <p>Configurações</p>
                                 </a>
                             </li>
                         }
@@ -182,8 +232,8 @@
 
         <!-- Footer -->
         <footer class="app-footer">
-            <div class="float-end d-none d-sm-inline">CatalogoBCV</div>
-            <strong>&copy; 2026 <a href="#">CatalogoBCV</a>.</strong> All rights reserved.
+            <div class="float-end d-none d-sm-inline">@appTitle</div>
+            <strong>&copy; 2026 <a href="#">@appTitle</a>.</strong> All rights reserved.
         </footer>
     </div>
 

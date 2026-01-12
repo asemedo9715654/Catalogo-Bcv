@@ -4,6 +4,7 @@ using CatalogoBCV.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatalogoBCV.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    partial class CatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20260112213919_AddSystemSettings")]
+    partial class AddSystemSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,30 +243,6 @@ namespace CatalogoBCV.Migrations
                             Group = "General",
                             Type = "number",
                             Value = "10"
-                        },
-                        new
-                        {
-                            Key = "PrimaryColor",
-                            Description = "Primary Color",
-                            Group = "Appearance",
-                            Type = "color",
-                            Value = "#0d6efd"
-                        },
-                        new
-                        {
-                            Key = "HeaderColor",
-                            Description = "Header Background Color",
-                            Group = "Appearance",
-                            Type = "color",
-                            Value = "#ffffff"
-                        },
-                        new
-                        {
-                            Key = "SidebarColor",
-                            Description = "Sidebar Background Color",
-                            Group = "Appearance",
-                            Type = "color",
-                            Value = "#f8f9fa"
                         });
                 });
 

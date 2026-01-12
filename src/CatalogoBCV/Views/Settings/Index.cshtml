@@ -1,0 +1,71 @@
+@model IEnumerable<CatalogoBCV.Models.SystemSetting>
+@{
+    ViewData["Title"] = "Configurações do Sistema";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Update" method="post">
+                        @foreach (var group in Model.GroupBy(x => x.Group))
+                        {
+                            <h4 class="mt-4 mb-3 border-bottom pb-2">@group.Key</h4>
+                            
+                            @foreach (var setting in group)
+                            {
+                                <div class="mb-3 row">
+                                    <label for="setting_@setting.Key" class="col-sm-3 col-form-label">
+                                        @setting.Key
+                                        @if (!string.IsNullOrEmpty(setting.Description))
+                                        {
+                                            <small class="d-block text-muted">@setting.Description</small>
+                                        }
+                                    </label>
+                                    <div class="col-sm-9">
+                                        @if (setting.Type == "boolean")
+                                        {
+                                            <select name="settings[@setting.Key]" class="form-select">
+                                                <option value="true" selected="@(setting.Value.ToLower() == "true")">Sim</option>
+                                                <option value="false" selected="@(setting.Value.ToLower() == "false")">Não</option>
+                                            </select>
+                                        }
+                                        else if (setting.Key == "Theme")
+                                        {
+                                            <select name="settings[@setting.Key]" class="form-select">
+                                                <option value="light" selected="@(setting.Value.ToLower() == "light")">Claro</option>
+                                                <option value="dark" selected="@(setting.Value.ToLower() == "dark")">Escuro</option>
+                                            </select>
+                                        }
+                                        else if (setting.Type == "number")
+                                        {
+                                            <input type="number" class="form-control" name="settings[@setting.Key]" value="@setting.Value" />
+                                        }
+                                        else if (setting.Type == "color")
+                                        {
+                                            <input type="color" class="form-control form-control-color" name="settings[@setting.Key]" value="@setting.Value" title="Choose your color">
+                                        }
+                                        else
+                                        {
+                                            <input type="text" class="form-control" name="settings[@setting.Key]" value="@setting.Value" />
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
