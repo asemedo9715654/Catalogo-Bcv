@@ -45,6 +45,7 @@ namespace CatalogoBCV.Controllers
                 });
 
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Utilizador criado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
             return View(user);

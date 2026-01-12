@@ -115,10 +115,12 @@ namespace CatalogoBCV.Controllers
                     });
 
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Base de dados adicionada com sucesso!";
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
+                    TempData["Error"] = "Não foi possível conectar à base de dados.";
                     ModelState.AddModelError("", "Não foi possível conectar à base de dados.");
                 }
             }

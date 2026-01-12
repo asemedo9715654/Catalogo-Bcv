@@ -56,6 +56,7 @@ namespace CatalogoBCV.Controllers
             {
                 _context.Add(domain);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Domínio criado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
             return View(domain);
@@ -93,6 +94,7 @@ namespace CatalogoBCV.Controllers
                 {
                     _context.Update(domain);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = "Domínio atualizado com sucesso!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -138,6 +140,7 @@ namespace CatalogoBCV.Controllers
             {
                 _context.Domains.Remove(domain);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Domínio removido com sucesso!";
             }
             return RedirectToAction(nameof(Index));
         }

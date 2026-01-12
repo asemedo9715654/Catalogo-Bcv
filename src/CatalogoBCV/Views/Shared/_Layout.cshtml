@@ -20,6 +20,9 @@
     <!-- AdminLTE CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta1/dist/css/adminlte.min.css" />
     
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    
     <!-- Local CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CatalogoBCV.styles.css" asp-append-version="true" />
@@ -184,6 +187,37 @@
     <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta1/dist/js/adminlte.min.js"></script>
     
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "5000"
+            };
+
+            @if (TempData["Success"] != null)
+            {
+                <text>toastr.success('@TempData["Success"]');</text>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <text>toastr.error('@TempData["Error"]');</text>
+            }
+            @if (TempData["Warning"] != null)
+            {
+                <text>toastr.warning('@TempData["Warning"]');</text>
+            }
+            @if (TempData["Info"] != null)
+            {
+                <text>toastr.info('@TempData["Info"]');</text>
+            }
+        });
+    </script>
     
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

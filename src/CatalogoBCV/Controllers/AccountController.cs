@@ -71,10 +71,12 @@ namespace CatalogoBCV.Controllers
                 });
                 await _context.SaveChangesAsync();
 
+                TempData["Success"] = $"Bem-vindo, {username}!";
                 return RedirectToAction("Index", "Home");
             }
 
             ModelState.AddModelError("", "Credenciais inválidas");
+            TempData["Error"] = "Credenciais inválidas";
             return View();
         }
 
@@ -91,6 +93,7 @@ namespace CatalogoBCV.Controllers
             await _context.SaveChangesAsync();
 
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["Success"] = "Sessão terminada com sucesso.";
             return RedirectToAction("Login");
         }
     }

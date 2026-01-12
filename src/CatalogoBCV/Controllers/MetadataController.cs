@@ -117,6 +117,7 @@ namespace CatalogoBCV.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Tabela atualizada com sucesso!";
             return RedirectToAction("TableDetails", "Catalog", new { id = table.Id });
         }
 
@@ -174,6 +175,7 @@ namespace CatalogoBCV.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Coluna atualizada com sucesso!";
             return RedirectToAction("TableDetails", "Catalog", new { id = column.TableId });
         }
     }
