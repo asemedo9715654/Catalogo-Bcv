@@ -1,5 +1,7 @@
 using CatalogoBCV.Models;
 using Microsoft.Data.SqlClient;
+using System;
+using System.Linq;
 
 namespace CatalogoBCV.Services
 {
@@ -123,6 +125,25 @@ namespace CatalogoBCV.Services
                         table.RowCount = rowCount;
                     }
                 }
+            }
+
+            foreach (var t in tables)
+            {
+                var nameSuggestsFact =
+                    t.Name.IndexOf("fact", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    t.Name.IndexOf("fato", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                var fkCount = t.Columns.Count(c => c.IsForeignKey);
+
+                var numericTypes = new string[]
+                {
+                    "int","bigint","decimal","numeric","float","real","money","smallint","tinyint"
+                };
+                var hasMeasureCandidate = t.Columns.Any(c =>
+                    !c.IsForeignKey && !c.IsPrimaryKey &&
+                    numericTypes.Contains(c.DataType, StringComparer.OrdinalIgnoreCase));
+
+                t.IsFactTable = nameSuggestsFact || (fkCount >= 2 && hasMeasureCandidate);
             }
 
             return tables;

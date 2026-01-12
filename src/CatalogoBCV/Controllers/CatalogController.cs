@@ -200,6 +200,12 @@ namespace CatalogoBCV.Controllers
                                 }
                             }
                         }
+                        
+                        if (existingTable.IsFactTable != freshTable.IsFactTable)
+                        {
+                            existingTable.IsFactTable = freshTable.IsFactTable;
+                            hasSchemaChanges = true;
+                        }
                     }
                 }
 

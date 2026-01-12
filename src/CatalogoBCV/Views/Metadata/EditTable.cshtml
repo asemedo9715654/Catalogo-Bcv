@@ -56,6 +56,11 @@
                                 <span asp-validation-for="Status" class="text-danger"></span>
                             </div>
 
+                            <div class="form-group form-check mb-3">
+                                <input class="form-check-input" asp-for="IsFactTable" />
+                                <label class="form-check-label" asp-for="IsFactTable">Tabela de Factos</label>
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label asp-for="Description" class="form-label"></label>
                                 <textarea asp-for="Description" class="form-control" rows="5"></textarea>

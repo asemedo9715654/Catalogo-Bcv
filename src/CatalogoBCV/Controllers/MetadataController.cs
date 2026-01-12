@@ -30,7 +30,7 @@ namespace CatalogoBCV.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status")] Table tableDto)
+        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable")] Table tableDto)
         {
             if (id != tableDto.Id) return NotFound();
 
@@ -42,12 +42,14 @@ namespace CatalogoBCV.Controllers
             var oldAlias = table.Alias;
             var oldDomainId = table.DomainId;
             var oldStatus = table.Status;
+            var oldIsFact = table.IsFactTable;
 
             // Atualizar
             table.Description = tableDto.Description;
             table.Alias = tableDto.Alias;
             table.DomainId = tableDto.DomainId;
             table.Status = tableDto.Status;
+            table.IsFactTable = tableDto.IsFactTable;
 
             if (oldDescription != table.Description)
             {
@@ -97,6 +99,19 @@ namespace CatalogoBCV.Controllers
                     EntityId = table.Id.ToString(),
                     OldValue = oldStatus.ToString(),
                     NewValue = table.Status.ToString(),
+                    Username = User.Identity?.Name ?? "System"
+                });
+            }
+            
+            if (oldIsFact != table.IsFactTable)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateIsFactTable",
+                    EntityType = "Table",
+                    EntityId = table.Id.ToString(),
+                    OldValue = oldIsFact ? "True" : "False",
+                    NewValue = table.IsFactTable ? "True" : "False",
                     Username = User.Identity?.Name ?? "System"
                 });
             }
