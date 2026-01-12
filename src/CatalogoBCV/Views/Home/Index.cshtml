@@ -5,13 +5,26 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-<div class="container-fluid">
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-        <a asp-controller="Catalog" asp-action="Create" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-plus fa-sm text-white-50"></i> Nova Base de Dados
-        </a>
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Dashboard</h3>
+                </div>
+                <div class="col-sm-6">
+                    <div class="float-sm-end">
+                        <a asp-controller="Catalog" asp-action="Create" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus fa-sm text-white-50"></i> Nova Base de Dados
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+}
+
+<div class="container-fluid">
 
     <!-- Stats Cards -->
     <div class="row">
