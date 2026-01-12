@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.RegularExpressions;
 
 namespace CatalogoBCV.Controllers
 {
@@ -41,110 +42,61 @@ namespace CatalogoBCV.Controllers
 
             if (db == null) return NotFound();
 
-            // Determine which tables to show
-            IEnumerable<Table> tablesToShow = db.Tables;
-            List<Tuple<Table, Table, string>> relationships = new List<Tuple<Table, Table, string>>();
+            IEnumerable<Table> tablesToShow;
+            var relationships = new List<Tuple<Table, Table, string>>();
 
             if (tableId.HasValue)
             {
                 var factTable = db.Tables.FirstOrDefault(t => t.Id == tableId);
                 if (factTable != null)
                 {
-                    var relatedTables = new HashSet<Table>();
-                    relatedTables.Add(factTable);
-
-                    // Heuristic: Find related tables based on column names (Star Schema)
-                    foreach (var col in factTable.Columns)
-                    {
-                        var colName = col.Name;
-                        var potentialTargets = new List<string>();
-
-                        // 1. Try stripping suffixes/prefixes
-                        if (colName.EndsWith("Id", StringComparison.OrdinalIgnoreCase) && colName.Length > 2)
-                        {
-                            potentialTargets.Add(colName.Substring(0, colName.Length - 2));
-                        }
-                        else if (colName.EndsWith("Key", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
-                        {
-                            potentialTargets.Add(colName.Substring(0, colName.Length - 3));
-                        }
-                        else if (colName.EndsWith("_id", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
-                        {
-                            potentialTargets.Add(colName.Substring(0, colName.Length - 3));
-                        }
-                        
-                        if (colName.StartsWith("id_", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
-                        {
-                             potentialTargets.Add(colName.Substring(3));
-                        }
-                        if (colName.StartsWith("fk_", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
-                        {
-                             potentialTargets.Add(colName.Substring(3));
-                        }
-
-                        // 2. Try full name (e.g. "CurrencyIsoCode" -> "CurrencyIsoCode" table)
-                        potentialTargets.Add(colName);
-
-                        Table? match = null;
-
-                        foreach (var target in potentialTargets)
-                        {
-                            // Normalize target for comparison
-                            var targetClean = target.Replace("_", "").ToLowerInvariant();
-
-                            match = db.Tables.FirstOrDefault(t =>
-                            {
-                                var tNameClean = t.Name.Replace("_", "").ToLowerInvariant();
-                                return tNameClean == targetClean ||
-                                       tNameClean == "dim" + targetClean ||
-                                       tNameClean == targetClean + "dim" ||
-                                       tNameClean == "t" + targetClean || // T_Prefix
-                                       tNameClean == targetClean + "t";   // Suffix
-                            });
-
-                            if (match != null) break;
-                        }
-
-                        if (match != null && match.Id != factTable.Id)
-                        {
-                            relatedTables.Add(match);
-                            relationships.Add(new Tuple<Table, Table, string>(factTable, match, colName));
-                        }
-                    }
+                    var relatedTables = new HashSet<Table> { factTable };
+                    FindRelationships(factTable, db.Tables, relatedTables, relationships);
                     tablesToShow = relatedTables;
+                }
+                else
+                {
+                    tablesToShow = new List<Table>();
+                }
+            }
+            else
+            {
+                // Show all tables
+                tablesToShow = db.Tables;
+                // Calculate relationships for ALL tables
+                foreach (var table in db.Tables)
+                {
+                    FindRelationships(table, db.Tables, null, relationships);
                 }
             }
 
-            // Gerar definição Mermaid
+            // Generate Mermaid definition
             var sb = new StringBuilder();
             sb.AppendLine("classDiagram");
 
             foreach (var table in tablesToShow)
             {
-                // Use Schema.Name and wrap in quotes to handle special characters/spaces
-                // Escape quotes in the name itself
                 var rawName = $"{table.Schema}.{table.Name}";
-                var safeId = "T_" + System.Text.RegularExpressions.Regex.Replace(rawName, @"[^a-zA-Z0-9_]", "_");
-                var label = rawName.Replace("\"", "'"); // Replace double quotes with single for display safety
+                var safeId = GetSafeId(rawName);
+                var label = rawName.Replace("\"", "'");
 
                 sb.AppendLine($"    class {safeId}[\"{label}\"] {{");
-                
-                // Add columns (limit to first 10 to avoid huge diagrams)
-                foreach (var col in table.Columns.Take(10))
+
+                foreach (var col in table.Columns.Take(20))
                 {
                     var colType = col.DataType ?? "string";
                     var colName = col.Name ?? "Column";
-                    
-                    // Sanitize for Mermaid: replace spaces and special chars to prevent syntax errors
-                    // Keep alphanumeric and underscores
-                    colName = System.Text.RegularExpressions.Regex.Replace(colName, @"[^a-zA-Z0-9_]", "_");
-                    
-                    // Ensure type is also safe (though usually it is)
-                    colType = System.Text.RegularExpressions.Regex.Replace(colType, @"[^a-zA-Z0-9_]", "");
 
-                    sb.AppendLine($"        {colType} {colName}");
+                    colName = Regex.Replace(colName, @"[^a-zA-Z0-9_]", "_");
+                    colType = Regex.Replace(colType, @"[^a-zA-Z0-9_]", "");
+
+                    var suffix = "";
+                    if (col.IsPrimaryKey) suffix += " PK";
+                    if (col.IsForeignKey) suffix += " FK";
+
+                    sb.AppendLine($"        {colType} {colName}{suffix}");
                 }
-                if (table.Columns.Count > 10)
+                if (table.Columns.Count > 20)
                 {
                     sb.AppendLine("        ...");
                 }
@@ -157,9 +109,12 @@ namespace CatalogoBCV.Controllers
                 var factRaw = $"{rel.Item1.Schema}.{rel.Item1.Name}";
                 var dimRaw = $"{rel.Item2.Schema}.{rel.Item2.Name}";
 
-                var factId = "T_" + System.Text.RegularExpressions.Regex.Replace(factRaw, @"[^a-zA-Z0-9_]", "_");
-                var dimId = "T_" + System.Text.RegularExpressions.Regex.Replace(dimRaw, @"[^a-zA-Z0-9_]", "_");
+                var factId = GetSafeId(factRaw);
+                var dimId = GetSafeId(dimRaw);
 
+                // Ensure we don't draw lines to tables not in the diagram (should generally be safe here)
+                // But specifically for 'Single Table' view, if FindRelationships found a match, it added it to relatedTables.
+                
                 sb.AppendLine($"    {factId} --> {dimId} : {rel.Item3}");
             }
 
@@ -167,9 +122,89 @@ namespace CatalogoBCV.Controllers
             ViewBag.DatabaseName = db.DatabaseName;
             ViewBag.DbId = db.Id;
 
-            
-
             return View();
+        }
+
+        private string GetSafeId(string name)
+        {
+            return "T_" + Regex.Replace(name, @"[^a-zA-Z0-9_]", "_");
+        }
+
+        private void FindRelationships(Table sourceTable, IEnumerable<Table> potentialTargets, HashSet<Table>? relatedTablesAccumulator, List<Tuple<Table, Table, string>> relationshipsAccumulator)
+        {
+            foreach (var col in sourceTable.Columns)
+            {
+                var colName = col.Name;
+                var targets = new List<string>();
+
+                // 1. Try stripping suffixes/prefixes
+                if (colName.EndsWith("_surrogate_key", StringComparison.OrdinalIgnoreCase) && colName.Length > 14)
+                {
+                    targets.Add(colName.Substring(0, colName.Length - 14));
+                }
+                else if (colName.EndsWith("Id", StringComparison.OrdinalIgnoreCase) && colName.Length > 2)
+                {
+                    targets.Add(colName.Substring(0, colName.Length - 2));
+                }
+                else if (colName.EndsWith("Key", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
+                {
+                    targets.Add(colName.Substring(0, colName.Length - 3));
+                }
+                else if (colName.EndsWith("_id", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
+                {
+                    targets.Add(colName.Substring(0, colName.Length - 3));
+                }
+
+                if (colName.StartsWith("id_", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
+                {
+                    targets.Add(colName.Substring(3));
+                }
+                if (colName.StartsWith("fk_", StringComparison.OrdinalIgnoreCase) && colName.Length > 3)
+                {
+                    targets.Add(colName.Substring(3));
+                }
+
+                // 2. Try full name
+                targets.Add(colName);
+
+                Table? match = null;
+
+                foreach (var target in targets)
+                {
+                    var targetClean = target.Replace("_", "").ToLowerInvariant();
+
+                    match = potentialTargets.FirstOrDefault(t =>
+                    {
+                        var tNameClean = t.Name.Replace("_", "").ToLowerInvariant();
+                        
+                        // Check exact matches or dim/t prefix matches
+                        if (CheckMatch(tNameClean, targetClean)) return true;
+
+                        // Check pluralized target matches (e.g. target="customer", table="customers")
+                        if (CheckMatch(tNameClean, targetClean + "s")) return true;
+                        if (CheckMatch(tNameClean, targetClean + "es")) return true;
+
+                        return false;
+                    });
+
+                    if (match != null) break;
+                }
+
+                if (match != null && match.Id != sourceTable.Id)
+                {
+                    relatedTablesAccumulator?.Add(match);
+                    relationshipsAccumulator.Add(new Tuple<Table, Table, string>(sourceTable, match, colName));
+                }
+            }
+        }
+
+        private bool CheckMatch(string tableName, string targetName)
+        {
+            return tableName == targetName ||
+                   tableName == "dim" + targetName ||
+                   tableName == targetName + "dim" ||
+                   tableName == "t" + targetName ||
+                   tableName == targetName + "t";
         }
     }
 }
