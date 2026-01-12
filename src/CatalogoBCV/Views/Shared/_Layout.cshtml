@@ -44,6 +44,13 @@
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
+                    <!-- Dark Mode Toggle -->
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-link" id="darkModeToggle" title="Alternar Modo Escuro">
+                            <i class="bi bi-moon-stars"></i>
+                        </button>
+                    </li>
+
                     <!-- Search Form -->
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
@@ -192,6 +199,46 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+        // Dark Mode Logic
+        (function() {
+            const toggleButton = document.getElementById('darkModeToggle');
+            const icon = toggleButton.querySelector('i');
+            const htmlElement = document.documentElement;
+            
+            // Check localStorage or system preference
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const currentTheme = savedTheme || systemTheme;
+            
+            // Apply theme
+            if (currentTheme === 'dark') {
+                htmlElement.setAttribute('data-bs-theme', 'dark');
+                icon.classList.remove('bi-moon-stars');
+                icon.classList.add('bi-sun');
+            } else {
+                htmlElement.setAttribute('data-bs-theme', 'light');
+                icon.classList.remove('bi-sun');
+                icon.classList.add('bi-moon-stars');
+            }
+
+            // Toggle event
+            toggleButton.addEventListener('click', function() {
+                const isDark = htmlElement.getAttribute('data-bs-theme') === 'dark';
+                const newTheme = isDark ? 'light' : 'dark';
+                
+                htmlElement.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                if (newTheme === 'dark') {
+                    icon.classList.remove('bi-moon-stars');
+                    icon.classList.add('bi-sun');
+                } else {
+                    icon.classList.remove('bi-sun');
+                    icon.classList.add('bi-moon-stars');
+                }
+            });
+        })();
+
         $(document).ready(function() {
             toastr.options = {
                 "closeButton": true,

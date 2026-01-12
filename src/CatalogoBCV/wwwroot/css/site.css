@@ -8,6 +8,16 @@
   --text-light: #ffffff;
 }
 
+[data-bs-theme="dark"] {
+  --primary-blue: #003366; /* Keep or adjust for dark mode */
+  --secondary-blue: #3d8bfd; /* Lighter blue for better visibility on dark */
+  --accent-orange: #FF6600;
+  --accent-orange-hover: #e65c00;
+  --light-bg: #212529; /* Dark background */
+  --text-dark: #f8f9fa; /* Light text */
+  --text-light: #f8f9fa;
+}
+
 /* html {
   font-size: 14px;
   position: relative;
@@ -35,6 +45,10 @@ body {
 .navbar {
   background-color: var(--primary-blue) !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .navbar {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .navbar-brand, .navbar-nav .nav-link {
@@ -154,10 +168,21 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid rgba(0,0,0,0.05);
 }
 
+[data-bs-theme="dark"] .card-custom {
+    background-color: #2b3035;
+    border-color: rgba(255,255,255,0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
 .form-label, .control-label {
     font-weight: 600;
     color: var(--primary-blue);
     margin-bottom: 0.5rem;
+}
+
+[data-bs-theme="dark"] .form-label,
+[data-bs-theme="dark"] .control-label {
+    color: #dee2e6;
 }
 
 .form-control {
@@ -179,6 +204,11 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     overflow: hidden; /* Clips the corners */
     margin-bottom: 1rem;
+}
+
+[data-bs-theme="dark"] .table-responsive {
+    background-color: #2b3035;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .table {
