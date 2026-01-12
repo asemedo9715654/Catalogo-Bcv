@@ -4,9 +4,11 @@ using CatalogoBCV.Models;
 using CatalogoBCV.Data;
 using CatalogoBCV.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CatalogoBCV.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     private readonly CatalogContext _context;
