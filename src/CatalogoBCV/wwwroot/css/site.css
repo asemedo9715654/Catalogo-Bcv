@@ -218,3 +218,8 @@ h1, h2, h3, h4, h5, h6 {
 .progress-bar.bg-warning {
     background-color: #f6c23e !important;
 }
+
+/* Toastr Fix for Bootstrap 5 */
+#toast-container > div {
+    opacity: 1;
+}
