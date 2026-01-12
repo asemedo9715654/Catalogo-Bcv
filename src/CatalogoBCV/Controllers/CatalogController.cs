@@ -27,6 +27,43 @@ namespace CatalogoBCV.Controllers
             return View(databases);
         }
 
+        public async Task<IActionResult> GenerateDocumentation(int id)
+        {
+            var db = await _context.CatalogDatabases
+                .Include(d => d.Tables)
+                .ThenInclude(t => t.Columns)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (db == null) return NotFound();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"# Documentação do Catálogo de Dados - {db.DatabaseName}");
+            sb.AppendLine($"Gerado em: {DateTime.Now}");
+            sb.AppendLine();
+
+            sb.AppendLine($"## Base de Dados: {db.DatabaseName}");
+            sb.AppendLine($"Servidor: {db.Server}");
+            sb.AppendLine();
+
+            foreach (var table in db.Tables)
+            {
+                sb.AppendLine($"### Tabela: {table.Schema}.{table.Name}");
+                sb.AppendLine($"Descrição: {table.Description ?? "N/A"}");
+                sb.AppendLine();
+                sb.AppendLine("| Coluna | Tipo | Nulável | PK | FK | Descrição |");
+                sb.AppendLine("| --- | --- | --- | --- | --- | --- |");
+
+                foreach (var col in table.Columns)
+                {
+                    sb.AppendLine($"| {col.Name} | {col.DataType} | {(col.IsNullable ? "Sim" : "Não")} | {(col.IsPrimaryKey ? "Sim" : "Não")} | {(col.IsForeignKey ? "Sim" : "Não")} | {col.Description ?? ""} |");
+                }
+                sb.AppendLine();
+            }
+
+            var content = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return File(content, "text/markdown", $"Catalogo_{db.DatabaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.md");
+        }
+
         public IActionResult Create()
         {
             return View();

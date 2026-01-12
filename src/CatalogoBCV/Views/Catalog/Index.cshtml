@@ -82,6 +82,9 @@
                     Lista de Bases de Dados
                 </h3>
                 <div class="card-tools">
+                    <a asp-action="GenerateDocumentation" class="btn btn-success btn-sm me-2">
+                        <i class="bi bi-file-earmark-text me-1"></i> Gerar Documentação
+                    </a>
                     <a asp-action="Create" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus-circle me-1"></i> Nova Conexão
                     </a>
@@ -137,6 +140,9 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm">
+                                            <a asp-action="GenerateDocumentation" asp-route-id="@item.Id" class="btn btn-outline-secondary" title="Gerar Documentação">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
                                             <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-outline-success" title="Atualizar Metadados" onclick="return confirm('Deseja atualizar os metadados desta base de dados?');">
                                                 <i class="bi bi-arrow-repeat"></i>
                                             </a>
