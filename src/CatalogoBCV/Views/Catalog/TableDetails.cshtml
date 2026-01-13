@@ -208,6 +208,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="custom-tabs-four-graph-tab" data-bs-toggle="tab" href="#custom-tabs-four-graph" role="tab" aria-controls="custom-tabs-four-graph" aria-selected="false">Gráfico</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="custom-tabs-four-quality-tab" data-bs-toggle="tab" href="#custom-tabs-four-quality" role="tab" aria-controls="custom-tabs-four-quality" aria-selected="false">Qualidade de Dados</a>
+                            </li>
                         </ul>
                     </div>
                     <div class="card-body p-0">
@@ -280,6 +283,74 @@
                             <div class="tab-pane fade" id="custom-tabs-four-graph" role="tabpanel" aria-labelledby="custom-tabs-four-graph-tab">
                                 <div class="position-relative" style="height: 600px; width: 100%;">
                                     <iframe id="graphFrame" src="" data-src="@Url.Action("Index", "Graph", new { dbId = Model.CatalogDatabaseId, tableId = Model.Id, embedded = true })" style="width: 100%; height: 100%; border: none;"></iframe>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="custom-tabs-four-quality" role="tabpanel" aria-labelledby="custom-tabs-four-quality-tab">
+                                <div class="p-3">
+                                    <h5 class="text-primary mb-3"><i class="bi bi-shield-check me-2"></i>Metadados de Qualidade de Dados</h5>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title fw-bold text-dark mb-3">Informações de Carga</h6>
+                                                    <dl class="row mb-0">
+                                                        <dt class="col-sm-5"><i class="bi bi-arrow-repeat me-1"></i> Frequência de Carga</dt>
+                                                        <dd class="col-sm-7">@(Model.LoadFrequency ?? "Não definido")</dd>
+                                                        
+                                                        <dt class="col-sm-5"><i class="bi bi-calendar-check me-1"></i> Última Carga Bem-sucedida</dt>
+                                                        <dd class="col-sm-7">@(Model.LastSuccessfulLoad?.ToString("g") ?? "N/A")</dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card bg-light h-100">
+                                                <div class="card-body">
+                                                    <h6 class="card-title fw-bold text-dark mb-3">Regras de Validação</h6>
+                                                    <p class="card-text">
+                                                        @if (!string.IsNullOrEmpty(Model.ValidationRules))
+                                                        {
+                                                            @Html.Raw(Model.ValidationRules.Replace("\n", "<br>"))
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted fst-italic">Nenhuma regra de validação documentada.</span>
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h6 class="fw-bold mb-3"><i class="bi bi-percent me-2"></i>Percentual de NULLs por Coluna</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Coluna</th>
+                                                    <th style="width: 150px;" class="text-center">% NULLs</th>
+                                                    <th>Barra Visual</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var col in Model.Columns)
+                                                {
+                                                    var nullPct = col.NullPercentage ?? 0;
+                                                    var colorClass = nullPct > 50 ? "bg-danger" : (nullPct > 10 ? "bg-warning" : "bg-success");
+                                                    <tr>
+                                                        <td>@col.Name</td>
+                                                        <td class="text-center">@nullPct.ToString("F2")%</td>
+                                                        <td class="align-middle">
+                                                            <div class="progress" style="height: 20px;">
+                                                                <div class="progress-bar @colorClass" role="progressbar" style="width: @nullPct%;" aria-valuenow="@nullPct" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>

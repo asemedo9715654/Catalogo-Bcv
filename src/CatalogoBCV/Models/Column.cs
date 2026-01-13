@@ -12,6 +12,7 @@ namespace CatalogoBCV.Models
         public bool IsForeignKey { get; set; }
         public string? Description { get; set; }
         public string? Alias { get; set; }
+        public double? NullPercentage { get; set; }
         public List<ColumnComment> Comments { get; set; } = new();
         public List<Tag> Tags { get; set; } = new();
     }

@@ -30,7 +30,7 @@ namespace CatalogoBCV.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable,Owner,DataSteward,ConfidentialityLevel,AffectedReports,DependentDashboards")] Table tableDto)
+        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable,Owner,DataSteward,ConfidentialityLevel,AffectedReports,DependentDashboards,LoadFrequency,LastSuccessfulLoad,ValidationRules")] Table tableDto)
         {
             if (id != tableDto.Id) return NotFound();
 
@@ -43,6 +43,9 @@ namespace CatalogoBCV.Controllers
             var oldDomainId = table.DomainId;
             var oldStatus = table.Status;
             var oldIsFact = table.IsFactTable;
+            var oldLoadFrequency = table.LoadFrequency;
+            var oldLastSuccessfulLoad = table.LastSuccessfulLoad;
+            var oldValidationRules = table.ValidationRules;
 
             // Atualizar
             table.Description = tableDto.Description;
@@ -57,6 +60,11 @@ namespace CatalogoBCV.Controllers
             table.ConfidentialityLevel = tableDto.ConfidentialityLevel;
             table.AffectedReports = tableDto.AffectedReports;
             table.DependentDashboards = tableDto.DependentDashboards;
+            
+            // Data Quality
+            table.LoadFrequency = tableDto.LoadFrequency;
+            table.LastSuccessfulLoad = tableDto.LastSuccessfulLoad;
+            table.ValidationRules = tableDto.ValidationRules;
 
             if (oldDescription != table.Description)
             {
@@ -123,6 +131,45 @@ namespace CatalogoBCV.Controllers
                 });
             }
 
+            if (oldLoadFrequency != table.LoadFrequency)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateLoadFrequency",
+                    EntityType = "Table",
+                    EntityId = table.Id.ToString(),
+                    OldValue = oldLoadFrequency,
+                    NewValue = table.LoadFrequency,
+                    Username = User.Identity?.Name ?? "System"
+                });
+            }
+
+            if (oldLastSuccessfulLoad != table.LastSuccessfulLoad)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateLastSuccessfulLoad",
+                    EntityType = "Table",
+                    EntityId = table.Id.ToString(),
+                    OldValue = oldLastSuccessfulLoad?.ToString("g"),
+                    NewValue = table.LastSuccessfulLoad?.ToString("g"),
+                    Username = User.Identity?.Name ?? "System"
+                });
+            }
+
+            if (oldValidationRules != table.ValidationRules)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateValidationRules",
+                    EntityType = "Table",
+                    EntityId = table.Id.ToString(),
+                    OldValue = oldValidationRules,
+                    NewValue = table.ValidationRules,
+                    Username = User.Identity?.Name ?? "System"
+                });
+            }
+
             await _context.SaveChangesAsync();
             TempData["Success"] = "Tabela atualizada com sucesso!";
             return RedirectToAction("TableDetails", "Catalog", new { id = table.Id });
@@ -140,7 +187,7 @@ namespace CatalogoBCV.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditColumn(int id, [Bind("Id,Description,Alias")] Column columnDto)
+        public async Task<IActionResult> EditColumn(int id, [Bind("Id,Description,Alias,NullPercentage")] Column columnDto)
         {
             if (id != columnDto.Id) return NotFound();
 
@@ -150,10 +197,12 @@ namespace CatalogoBCV.Controllers
             // Guardar valores antigos para auditoria
             var oldDescription = column.Description;
             var oldAlias = column.Alias;
+            var oldNullPercentage = column.NullPercentage;
 
             // Atualizar
             column.Description = columnDto.Description;
             column.Alias = columnDto.Alias;
+            column.NullPercentage = columnDto.NullPercentage;
 
             if (oldDescription != column.Description)
             {
@@ -178,6 +227,19 @@ namespace CatalogoBCV.Controllers
                     OldValue = oldAlias,
                     NewValue = column.Alias,
                     Username = "User"
+                });
+            }
+
+            if (oldNullPercentage != column.NullPercentage)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateNullPercentage",
+                    EntityType = "Column",
+                    EntityId = column.Id.ToString(),
+                    OldValue = oldNullPercentage?.ToString(),
+                    NewValue = column.NullPercentage?.ToString(),
+                    Username = User.Identity?.Name ?? "System"
                 });
             }
 

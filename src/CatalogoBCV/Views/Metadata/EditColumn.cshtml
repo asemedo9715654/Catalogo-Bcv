@@ -41,6 +41,12 @@
                                 <input asp-for="Alias" class="form-control" />
                                 <span asp-validation-for="Alias" class="text-danger"></span>
                             </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="NullPercentage" class="form-label">Percentual de NULLs (%)</label>
+                                <input asp-for="NullPercentage" class="form-control" type="number" step="0.01" min="0" max="100" />
+                                <span asp-validation-for="NullPercentage" class="text-danger"></span>
+                            </div>
                             
                             <div class="form-group mb-3">
                                 <label asp-for="Description" class="form-label"></label>

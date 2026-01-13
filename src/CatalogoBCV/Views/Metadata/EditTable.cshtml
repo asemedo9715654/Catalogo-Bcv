@@ -100,6 +100,33 @@
                                 </div>
                             </div>
 
+                            <div class="card bg-light mb-3">
+                                <div class="card-header fw-bold">Qualidade de Dados</div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label asp-for="LoadFrequency" class="form-label">Frequência de Carga</label>
+                                                <input asp-for="LoadFrequency" class="form-control" placeholder="Ex: Diária, Mensal" />
+                                                <span asp-validation-for="LoadFrequency" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label asp-for="LastSuccessfulLoad" class="form-label">Última Carga Bem-sucedida</label>
+                                                <input asp-for="LastSuccessfulLoad" class="form-control" type="datetime-local" />
+                                                <span asp-validation-for="LastSuccessfulLoad" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label asp-for="ValidationRules" class="form-label">Regras de Validação</label>
+                                        <textarea asp-for="ValidationRules" class="form-control" rows="3" placeholder="Descreva as regras de validação aplicadas a esta tabela..."></textarea>
+                                        <span asp-validation-for="ValidationRules" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label asp-for="Description" class="form-label"></label>
                                 <textarea asp-for="Description" class="form-control" rows="5"></textarea>

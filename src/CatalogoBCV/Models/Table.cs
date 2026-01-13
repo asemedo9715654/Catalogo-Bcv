@@ -35,6 +35,11 @@ namespace CatalogoBCV.Models
         public string? AffectedReports { get; set; }
         public string? DependentDashboards { get; set; }
 
+        // Data Quality
+        public string? LoadFrequency { get; set; } // e.g., Diária, Mensal
+        public DateTime? LastSuccessfulLoad { get; set; }
+        public string? ValidationRules { get; set; }
+
         public int? DomainId { get; set; }
         public Domain? Domain { get; set; }
 
