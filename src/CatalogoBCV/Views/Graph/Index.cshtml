@@ -84,6 +84,23 @@ else
             console.warn("Could not register cytoscape-dagre", e);
         }
 
+        // Process nodes to include columns in label
+        if (graphData.nodes) {
+            graphData.nodes.forEach(n => {
+                let label = n.data.name;
+                if (n.data.columns && n.data.columns.length > 0) {
+                    label += '\n__________________\n';
+                    n.data.columns.forEach(c => {
+                        let prefix = '';
+                        if (c.isPk) prefix = '🔑 ';
+                        else if (c.isFk) prefix = '🔗 ';
+                        label += `\n${prefix}${c.name}`;
+                    });
+                }
+                n.data.labelContent = label;
+            });
+        }
+
         const cy = cytoscape({
             container: document.getElementById('cy'),
             
@@ -105,7 +122,7 @@ else
                         'background-color': '#007bff',
                         'border-width': 2,
                         'border-color': '#0056b3',
-                        'label': 'data(name)',
+                        'label': 'data(labelContent)',
                         'text-valign': 'center',
                         'text-halign': 'center',
                         'width': 'label',
@@ -114,7 +131,8 @@ else
                         'font-size': '12px',
                         'color': '#fff',
                         'text-wrap': 'wrap',
-                        'text-max-width': '200px'
+                        'text-max-width': '250px',
+                        'text-justification': 'left'
                     }
                 },
                 {
