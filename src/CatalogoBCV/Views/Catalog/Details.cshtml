@@ -85,12 +85,9 @@
                                                     <a asp-action="TableDetails" asp-route-id="@table.Id" class="btn btn-info" title="Ver Colunas">
                                                         <i class="bi bi-table"></i>
                                                     </a>
-                                                    @if (table.Name.StartsWith("fact", StringComparison.OrdinalIgnoreCase))
-                                                    {
-                                                        <a asp-controller="Graph" asp-action="Index" asp-route-tableId="@table.Id" class="btn btn-warning" title="Ver Gráfico">
-                                                            <i class="bi bi-diagram-3"></i>
-                                                        </a>
-                                                    }
+                                                    <a asp-controller="Graph" asp-action="Index" asp-route-tableId="@table.Id" class="btn btn-warning" title="Ver Mapas">
+                                                        <i class="bi bi-diagram-3"></i>
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
