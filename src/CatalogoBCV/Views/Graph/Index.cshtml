@@ -16,10 +16,16 @@
     <title>@ViewData["Title"]</title>
     <style>
         body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        #mermaid-container { width: 100%; overflow: auto; min-height: 400px; }
+        #cy { width: 100%; height: 100vh; min-height: 400px; border: 1px solid #ddd; background: #f9f9f9; }
     </style>
     @Html.Raw("</head>")
     @Html.Raw("<body>")
+}
+else
+{
+    <style>
+        #cy { width: 100%; height: 600px; border: 1px solid #ddd; background: #f9f9f9; }
+    </style>
 }
 
 @if ((ViewBag.Embedded as bool?) != true)
@@ -29,62 +35,170 @@
     </div>
 }
 
-<div id="mermaid-container"></div>
+<div id="cy"></div>
 
-<!-- Safe data transfer using a non-executable script tag -->
-<script type="text/plain" id="mermaid-graph-data">
-@Html.Raw(ViewBag.MermaidData)
+<!-- Safe data transfer -->
+<script type="text/plain" id="graph-data">
+@Html.Raw(ViewBag.GraphData)
 </script>
 
-<script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    
-    // Simple init usually works best for ER diagrams
-    mermaid.initialize({ 
-        startOnLoad: false,
-        theme: 'default'
-    });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
 
-    const graphDefinition = document.getElementById('mermaid-graph-data').textContent.trim();
-    
-    const element = document.getElementById('mermaid-container');
-    
-    // Ensure element is visible before rendering
-    if (element.offsetParent === null) {
-        // Wait for tab switch if hidden
-        const observer = new MutationObserver((mutations) => {
-            if (element.offsetParent !== null) {
-                renderGraph();
-                observer.disconnect();
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dataElement = document.getElementById('graph-data');
+        if (!dataElement) return;
+
+        let graphData;
+        try {
+            graphData = JSON.parse(dataElement.textContent);
+        } catch (e) {
+            console.error("Failed to parse graph data", e);
+            return;
+        }
+        
+        // Register extension
+        try {
+            cytoscape.use(cytoscapeDagre);
+        } catch(e) {
+            console.warn("Could not register cytoscape-dagre", e);
+        }
+
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            
+            elements: graphData,
+            
+            layout: {
+                name: 'dagre',
+                rankDir: 'LR',
+                nodeSep: 50,
+                rankSep: 100,
+                animate: true
+            },
+            
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'shape': 'round-rectangle',
+                        'background-color': '#fff',
+                        'border-width': 2,
+                        'border-color': '#007bff',
+                        'label': 'data(name)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'width': 'label',
+                        'height': 'label',
+                        'padding': '12px',
+                        'font-size': '12px',
+                        'color': '#333',
+                        'text-wrap': 'wrap',
+                        'text-max-width': '200px'
+                    }
+                },
+                {
+                    selector: ':selected',
+                    style: {
+                        'border-width': 4,
+                        'border-color': '#0056b3',
+                        'background-color': '#e9ecef'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#999',
+                        'target-arrow-color': '#999',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(label)',
+                        'font-size': '10px',
+                        'color': '#555',
+                        'text-background-opacity': 1,
+                        'text-background-color': '#fff',
+                        'text-background-padding': '2px'
+                    }
+                }
+            ],
+            
+            wheelSensitivity: 0.2
+        });
+
+        // Add tooltip or click event to show columns
+        cy.on('tap', 'node', function(evt){
+            const node = evt.target;
+            const columns = node.data('columns');
+            
+            let content = `<strong>${node.data('name')}</strong><br/><hr/>`;
+            if(columns && columns.length > 0) {
+                content += '<ul style="text-align:left; padding-left: 20px; margin: 0; max-height: 200px; overflow-y: auto;">';
+                columns.forEach(c => {
+                    let icon = '';
+                    if(c.isPk) icon = '🔑 ';
+                    else if(c.isFk) icon = '🔗 ';
+                    content += `<li>${icon}${c.name} <span style="color:#888">(${c.type})</span></li>`;
+                });
+                content += '</ul>';
+            } else {
+                content += '<em>No columns</em>';
+            }
+            
+            // Remove existing tooltip
+            const existing = document.getElementById('cy-tooltip');
+            if(existing) existing.remove();
+
+            let tooltip = document.createElement('div');
+            tooltip.id = 'cy-tooltip';
+            tooltip.style.position = 'fixed'; // Use fixed to avoid scroll issues
+            tooltip.style.padding = '10px';
+            tooltip.style.background = 'white';
+            tooltip.style.border = '1px solid #ccc';
+            tooltip.style.borderRadius = '4px';
+            tooltip.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            tooltip.style.zIndex = '1000';
+            tooltip.style.maxWidth = '300px';
+            tooltip.style.maxHeight = '300px';
+            tooltip.style.overflow = 'auto';
+            
+            // Close button
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '×';
+            closeBtn.style.float = 'right';
+            closeBtn.style.border = 'none';
+            closeBtn.style.background = 'none';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.onclick = function() { tooltip.remove(); };
+            tooltip.insertBefore(closeBtn, tooltip.firstChild);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.innerHTML = content;
+            tooltip.appendChild(contentDiv);
+
+            document.body.appendChild(tooltip);
+            
+            const renderedPosition = node.renderedPosition();
+            const containerPos = document.getElementById('cy').getBoundingClientRect();
+            
+            // Calculate position relative to viewport
+            let left = containerPos.left + renderedPosition.x + 20;
+            let top = containerPos.top + renderedPosition.y;
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        });
+        
+        cy.on('tap', function(evt){
+            if(evt.target === cy){
+                const tooltip = document.getElementById('cy-tooltip');
+                if(tooltip) tooltip.remove();
             }
         });
-        observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
-        
-        // Also try immediate render if in iframe it might just need a moment
-        setTimeout(renderGraph, 500);
-    } else {
-        renderGraph();
-    }
-
-    async function renderGraph() {
-        try {
-            // Unique ID for each render to avoid conflicts
-            const id = 'graph-' + Math.floor(Math.random() * 10000);
-            const { svg } = await mermaid.render(id, graphDefinition);
-            element.innerHTML = svg;
-        } catch (error) {
-            console.error('Mermaid render error:', error);
-            element.innerHTML = `<div style="color: red; padding: 20px;">
-                <h3>Erro ao renderizar gráfico</h3>
-                <pre>${error.message}</pre>
-                <hr/>
-                <details>
-                    <summary>Definição do Gráfico</summary>
-                    <pre style="white-space: pre-wrap; font-size: 0.8em;">${graphDefinition.replace(/</g, '&lt;')}</pre>
-                </details>
-            </div>`;
-        }
-    }
+    });
 </script>
 
 @if ((ViewBag.Embedded as bool?) == true)

@@ -70,56 +70,45 @@ namespace CatalogoBCV.Controllers
                 }
             }
 
-            // Generate Mermaid definition
-            var sb = new StringBuilder();
-            sb.Append("erDiagram\n");
+            // Generate Cytoscape definition
+            var nodes = new List<object>();
+            var edges = new List<object>();
 
             foreach (var table in tablesToShow)
             {
-                var safeName = $"T_{table.Id}";
-                // In erDiagram, entities are just names. We can't easily add a separate display label in standard ER 
-                // without using the alias feature which is sometimes flaky, but let's try standard syntax:
-                // Entity { type name PK }
+                var safeId = $"T_{table.Id}";
+                var columns = table.Columns.Select(c => new { name = c.Name, type = c.DataType, isPk = c.IsPrimaryKey, isFk = c.IsForeignKey }).Take(20).ToList();
                 
-                sb.Append($"    {safeName} {{\n");
-
-                foreach (var col in table.Columns.Take(20))
+                nodes.Add(new
                 {
-                    var colType = col.DataType ?? "string";
-                    var colName = col.Name ?? "Column";
-
-                    colName = Regex.Replace(colName, @"[^a-zA-Z0-9_]", "_");
-                    colType = Regex.Replace(colType, @"[^a-zA-Z0-9_]", "_");
-                    
-                    if (string.IsNullOrWhiteSpace(colType)) colType = "string";
-                    // ER diagram expects: type name [PK/FK]
-                    
-                    sb.Append($"        {colType} {colName}");
-                    
-                    if (col.IsPrimaryKey) sb.Append(" PK");
-                    else if (col.IsForeignKey) sb.Append(" FK");
-                    
-                    sb.Append("\n");
-                }
-                if (table.Columns.Count > 20)
-                {
-                    sb.Append("        string more_columns...\n");
-                }
-
-                sb.Append("    }\n");
+                    data = new
+                    {
+                        id = safeId,
+                        name = table.Name,
+                        columns = columns,
+                        schema = table.Schema
+                    }
+                });
             }
 
             foreach (var rel in relationships)
             {
                 var factId = $"T_{rel.Item1.Id}";
                 var dimId = $"T_{rel.Item2.Id}";
-                
-                var label = rel.Item3.Replace("\"", "'").Replace("\r", "").Replace("\n", "");
-                // Relationship: Fact }|--|| Dim : "uses"
-                sb.Append($"    {factId} }}|--|| {dimId} : \"{label}\"\n");
+                var label = rel.Item3;
+
+                edges.Add(new
+                {
+                    data = new
+                    {
+                        source = factId,
+                        target = dimId,
+                        label = label
+                    }
+                });
             }
 
-            ViewBag.MermaidData = sb.ToString();
+            ViewBag.GraphData = System.Text.Json.JsonSerializer.Serialize(new { nodes, edges });
             ViewBag.DatabaseName = db.DatabaseName;
             ViewBag.DbId = db.Id;
             ViewBag.Embedded = embedded;
