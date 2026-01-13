@@ -79,6 +79,19 @@ namespace CatalogoBCV.Controllers
                 var safeId = $"T_{table.Id}";
                 var columns = table.Columns.Select(c => new { name = c.Name, type = c.DataType, isPk = c.IsPrimaryKey, isFk = c.IsForeignKey }).Take(20).ToList();
                 
+                string nodeType = "dim";
+                if (table.IsFactTable)
+                {
+                    nodeType = "fact";
+                }
+                else if (table.Name.Contains("Tempo", StringComparison.OrdinalIgnoreCase) || 
+                         table.Name.Contains("Time", StringComparison.OrdinalIgnoreCase) ||
+                         table.Name.Contains("Date", StringComparison.OrdinalIgnoreCase) ||
+                         table.Name.Contains("Calend", StringComparison.OrdinalIgnoreCase))
+                {
+                    nodeType = "time";
+                }
+
                 nodes.Add(new
                 {
                     data = new
@@ -86,7 +99,8 @@ namespace CatalogoBCV.Controllers
                         id = safeId,
                         name = table.Name,
                         columns = columns,
-                        schema = table.Schema
+                        schema = table.Schema,
+                        type = nodeType
                     }
                 });
             }

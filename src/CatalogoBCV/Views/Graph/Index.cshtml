@@ -37,6 +37,24 @@ else
 
 <div id="cy"></div>
 
+<div id="graph-legend" style="position: absolute; bottom: 20px; left: 20px; background: rgba(33, 37, 41, 0.9); padding: 15px; border-radius: 8px; color: white; z-index: 999; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.1);">
+    <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+        <span style="color: #4da3ff;">◆</span> Diferenciação visual
+    </h5>
+    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        <span style="width: 12px; height: 12px; background-color: #007bff; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 5px rgba(0,123,255,0.5);"></span>
+        <span style="font-size: 13px;">Dimensões</span>
+    </div>
+    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+        <span style="width: 12px; height: 12px; background-color: #fd7e14; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 5px rgba(253,126,20,0.5);"></span>
+        <span style="font-size: 13px;">Tabela de Factos</span>
+    </div>
+    <div style="display: flex; align-items: center;">
+        <span style="width: 12px; height: 12px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 10px; box-shadow: 0 0 5px rgba(40,167,69,0.5);"></span>
+        <span style="font-size: 13px;">Dimensão Tempo (sempre destacada)</span>
+    </div>
+</div>
+
 <!-- Safe data transfer -->
 <script type="text/plain" id="graph-data">
 @Html.Raw(ViewBag.GraphData)
@@ -84,9 +102,9 @@ else
                     selector: 'node',
                     style: {
                         'shape': 'round-rectangle',
-                        'background-color': '#fff',
+                        'background-color': '#007bff',
                         'border-width': 2,
-                        'border-color': '#007bff',
+                        'border-color': '#0056b3',
                         'label': 'data(name)',
                         'text-valign': 'center',
                         'text-halign': 'center',
@@ -94,17 +112,30 @@ else
                         'height': 'label',
                         'padding': '12px',
                         'font-size': '12px',
-                        'color': '#333',
+                        'color': '#fff',
                         'text-wrap': 'wrap',
                         'text-max-width': '200px'
+                    }
+                },
+                {
+                    selector: 'node[type="fact"]',
+                    style: {
+                        'background-color': '#fd7e14',
+                        'border-color': '#e67e22'
+                    }
+                },
+                {
+                    selector: 'node[type="time"]',
+                    style: {
+                        'background-color': '#28a745',
+                        'border-color': '#1e7e34'
                     }
                 },
                 {
                     selector: ':selected',
                     style: {
                         'border-width': 4,
-                        'border-color': '#0056b3',
-                        'background-color': '#e9ecef'
+                        'border-color': '#ffc107'
                     }
                 },
                 {
