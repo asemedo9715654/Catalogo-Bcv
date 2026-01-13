@@ -1,0 +1,57 @@
+@model CatalogoBCV.Models.SourceSystem
+
+@{
+    ViewData["Title"] = "Excluir Sistema de Origem";
+}
+
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Excluir Sistema de Origem</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-action="Index">Sistemas de Origem</a></li>
+                        <li class="breadcrumb-item active">Excluir</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">Confirmação</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">Tem certeza que deseja apagar este sistema de origem?</p>
+                        <dl class="row">
+                            <dt class="col-sm-4">Nome</dt>
+                            <dd class="col-sm-8">@Model.Name</dd>
+
+                            <dt class="col-sm-4">Descrição</dt>
+                            <dd class="col-sm-8">@(Model.Description ?? "-")</dd>
+
+                            <dt class="col-sm-4">Status</dt>
+                            <dd class="col-sm-8">@(Model.IsActive ? "Ativo" : "Inativo")</dd>
+                        </dl>
+                    </div>
+                    <div class="card-footer">
+                        <form asp-action="Delete">
+                            <input type="hidden" asp-for="Id" />
+                            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                            <input type="submit" value="Apagar" class="btn btn-danger float-end" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -508,6 +508,7 @@ namespace CatalogoBCV.Controllers
                 .Include(t => t.Comments)
                 .Include(t => t.Tags)
                 .Include(t => t.Domain)
+                .Include(t => t.SourceSystem)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (table == null) return NotFound();

@@ -140,6 +140,20 @@
                                 }
                             </dd>
 
+                            <dt class="col-sm-3">Sistema de Origem</dt>
+                            <dd class="col-sm-9">
+                                @if (Model.SourceSystem != null)
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-server me-1"></i> @Model.SourceSystem.Name
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </dd>
+
                             <dt class="col-sm-3">Owner</dt>
                             <dd class="col-sm-9">@(Model.Owner ?? "-")</dd>
 

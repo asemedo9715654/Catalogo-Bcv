@@ -25,12 +25,13 @@ namespace CatalogoBCV.Controllers
             if (table == null) return NotFound();
 
             ViewData["DomainId"] = new SelectList(_context.Domains, "Id", "Name", table.DomainId);
+            ViewData["SourceSystemId"] = new SelectList(_context.SourceSystems.Where(s => s.IsActive), "Id", "Name", table.SourceSystemId);
             return View(table);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable,Owner,DataSteward,ConfidentialityLevel,AffectedReports,DependentDashboards,LoadFrequency,LastSuccessfulLoad,ValidationRules")] Table tableDto)
+        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable,Owner,DataSteward,ConfidentialityLevel,AffectedReports,DependentDashboards,LoadFrequency,LastSuccessfulLoad,ValidationRules,SourceSystemId")] Table tableDto)
         {
             if (id != tableDto.Id) return NotFound();
 
@@ -46,6 +47,7 @@ namespace CatalogoBCV.Controllers
             var oldLoadFrequency = table.LoadFrequency;
             var oldLastSuccessfulLoad = table.LastSuccessfulLoad;
             var oldValidationRules = table.ValidationRules;
+            var oldSourceSystemId = table.SourceSystemId;
 
             // Atualizar
             table.Description = tableDto.Description;
@@ -53,6 +55,7 @@ namespace CatalogoBCV.Controllers
             table.DomainId = tableDto.DomainId;
             table.Status = tableDto.Status;
             table.IsFactTable = tableDto.IsFactTable;
+            table.SourceSystemId = tableDto.SourceSystemId;
 
             // New fields
             table.Owner = tableDto.Owner;
@@ -166,6 +169,19 @@ namespace CatalogoBCV.Controllers
                     EntityId = table.Id.ToString(),
                     OldValue = oldValidationRules,
                     NewValue = table.ValidationRules,
+                    Username = User.Identity?.Name ?? "System"
+                });
+            }
+
+            if (oldSourceSystemId != table.SourceSystemId)
+            {
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "UpdateSourceSystem",
+                    EntityType = "Table",
+                    EntityId = table.Id.ToString(),
+                    OldValue = oldSourceSystemId?.ToString(),
+                    NewValue = table.SourceSystemId?.ToString(),
                     Username = User.Identity?.Name ?? "System"
                 });
             }

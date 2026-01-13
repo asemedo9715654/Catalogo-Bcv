@@ -56,6 +56,9 @@ namespace CatalogoBCV.Models
         public int? DomainId { get; set; }
         public Domain? Domain { get; set; }
 
+        public int? SourceSystemId { get; set; }
+        public SourceSystem? SourceSystem { get; set; }
+
         public List<Column> Columns { get; set; } = new();
         public List<TableComment> Comments { get; set; } = new();
         public List<Tag> Tags { get; set; } = new();
