@@ -39,7 +39,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalDatabases</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-database fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                            <i class="fas fa-database fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalTables</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-table fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                            <i class="fas fa-table fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                             <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalUsers</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -112,10 +112,113 @@
         </div>
     </div>
 
+    <!-- Recent Activity & Quick Actions -->
     <div class="row">
-        <!-- Content Column -->
+        <!-- Recent Activity -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Atividade Recente</h6>
+                    <a asp-controller="Audit" asp-action="Index" class="btn btn-sm btn-link">Ver Tudo</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentActivities.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var log in Model.RecentActivities)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <i class="fas fa-history text-gray-400 mr-2"></i>
+                                            <span class="font-weight-bold">@log.Username</span>
+                                            <span class="text-muted small">@log.Action</span>
+                                            <span class="text-primary small">@log.EntityType: @log.EntityId</span>
+                                        </div>
+                                        <small class="text-muted">@log.Timestamp.ToString("g")</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center my-3">Nenhuma atividade recente encontrada.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ações Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Catalog" asp-action="Index" class="btn btn-outline-primary btn-block text-start mb-2">
+                            <i class="fas fa-search me-2"></i> Pesquisar Catálogo
+                        </a>
+                        <a asp-controller="Domains" asp-action="Index" class="btn btn-outline-info btn-block text-start mb-2">
+                            <i class="fas fa-layer-group me-2"></i> Gerir Domínios
+                        </a>
+                        <a asp-controller="Audit" asp-action="Index" class="btn btn-outline-secondary btn-block text-start">
+                            <i class="fas fa-shield-alt me-2"></i> Logs de Auditoria
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top Domains Chart -->
         <div class="col-lg-6 mb-4">
-            <!-- Project Card Example -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Domínios (Tabelas)</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.TopDomains.Any())
+                    {
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="domainsChart"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Nenhum domínio definido.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Distribution Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Distribuição de Tabelas</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.TotalTables > 0)
+                    {
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="tablesDistributionChart"></canvas>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Nenhuma tabela catalogada.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Databases Status -->
+        <div class="col-lg-6 mb-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Estado das Bases de Dados</h6>
@@ -124,8 +227,8 @@
                     @if (Model.DatabasesStatus.Any())
                     {
                         <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
+                            <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Servidor</th>
                                         <th>Base de Dados</th>
@@ -136,9 +239,9 @@
                                     @foreach (var db in Model.DatabasesStatus)
                                     {
                                         <tr>
-                                            <td>@db.Server</td>
-                                            <td>@db.DatabaseName</td>
-                                            <td>@db.LastUpdated?.ToString("g")</td>
+                                            <td><small>@db.Server</small></td>
+                                            <td><a asp-controller="Catalog" asp-action="Details" asp-route-id="@db.Id">@db.DatabaseName</a></td>
+                                            <td><small>@db.LastUpdated?.ToString("g")</small></td>
                                         </tr>
                                     }
                                 </tbody>
@@ -156,71 +259,10 @@
                     }
                 </div>
             </div>
-
-            <!-- Top Domains -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Top Domínios</h6>
-                </div>
-                <div class="card-body">
-                    @if (Model.TopDomains.Any())
-                    {
-                        @foreach (var domain in Model.TopDomains)
-                        {
-                            <h4 class="small font-weight-bold">@domain.Name <span
-                                    class="float-right">@domain.TableCount tabelas</span></h4>
-                            <div class="progress mb-4">
-                                @{
-                                    var percentage = (double)domain.TableCount / Model.TotalTables * 100;
-                                }
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: @percentage%"
-                                    aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <p class="text-muted">Nenhum domínio definido.</p>
-                    }
-                </div>
-            </div>
         </div>
 
+        <!-- Largest Tables -->
         <div class="col-lg-6 mb-4">
-             <!-- Fact vs Dimensions -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Distribuição de Tabelas</h6>
-                </div>
-                <div class="card-body">
-                    @if (Model.TotalTables > 0)
-                    {
-                        <h4 class="small font-weight-bold">Tabelas Facto <span class="float-right">@Model.FactTablesCount</span></h4>
-                        <div class="progress mb-4">
-                            @{
-                                var factPercentage = (double)Model.FactTablesCount / Model.TotalTables * 100;
-                            }
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: @factPercentage%"
-                                aria-valuenow="@factPercentage" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-
-                        <h4 class="small font-weight-bold">Dimensões / Outras <span class="float-right">@Model.DimensionTablesCount</span></h4>
-                        <div class="progress mb-4">
-                            @{
-                                var dimPercentage = (double)Model.DimensionTablesCount / Model.TotalTables * 100;
-                            }
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: @dimPercentage%"
-                                aria-valuenow="@dimPercentage" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Nenhuma tabela catalogada.</p>
-                    }
-                </div>
-            </div>
-
-             <!-- Largest Tables -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Maiores Tabelas (por linhas)</h6>
@@ -229,8 +271,8 @@
                      @if (Model.LargestTables.Any())
                     {
                         <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
+                            <table class="table table-bordered table-sm" width="100%" cellspacing="0">
+                                <thead class="table-light">
                                     <tr>
                                         <th>Tabela</th>
                                         <th>BD</th>
@@ -242,8 +284,8 @@
                                     {
                                         <tr>
                                             <td>@table.TableName</td>
-                                            <td>@table.DatabaseName</td>
-                                            <td>@table.RowCount.ToString("N0")</td>
+                                            <td><small>@table.DatabaseName</small></td>
+                                            <td class="text-end">@table.RowCount.ToString("N0")</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -266,5 +308,92 @@
     .border-left-info { border-left: .25rem solid #36b9cc!important; }
     .border-left-warning { border-left: .25rem solid #f6c23e!important; }
     .text-gray-300 { color: #dddfeb!important; }
+    .text-gray-400 { color: #d1d3e2!important; }
     .text-gray-800 { color: #5a5c69!important; }
+    .chart-pie {
+        position: relative;
+        height: 20rem;
+        width: 100%;
+    }
 </style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Set new default font family and font color to mimic Bootstrap's default styling
+        Chart.defaults.font.family = 'Nunito, -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+        Chart.defaults.color = '#858796';
+
+        // Top Domains Chart
+        var ctxDomains = document.getElementById("domainsChart");
+        if (ctxDomains) {
+            var domainsData = @Html.Raw(Json.Serialize(Model.TopDomains.Select(d => d.TableCount)));
+            var domainsLabels = @Html.Raw(Json.Serialize(Model.TopDomains.Select(d => d.Name)));
+            
+            new Chart(ctxDomains, {
+                type: 'doughnut',
+                data: {
+                    labels: domainsLabels,
+                    datasets: [{
+                        data: domainsData,
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                        hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617'],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)",
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyColor: "#858796",
+                        borderColor: '#dddfeb',
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10,
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    cutout: '70%',
+                },
+            });
+        }
+
+        // Table Distribution Chart
+        var ctxTables = document.getElementById("tablesDistributionChart");
+        if (ctxTables) {
+            new Chart(ctxTables, {
+                type: 'pie',
+                data: {
+                    labels: ["Facto", "Dimensões / Outras"],
+                    datasets: [{
+                        data: [@Model.FactTablesCount, @Model.DimensionTablesCount],
+                        backgroundColor: ['#e74a3b', '#f6c23e'],
+                        hoverBackgroundColor: ['#be2617', '#dda20a'],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)",
+                    }],
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyColor: "#858796",
+                        borderColor: '#dddfeb',
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10,
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                },
+            });
+        }
+    </script>
+}

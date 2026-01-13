@@ -18,6 +18,9 @@ namespace CatalogoBCV.Models.ViewModels
         public List<TableStat> LargestTables { get; set; } = new();
 
         public List<CatalogDatabase> DatabasesStatus { get; set; } = new List<CatalogDatabase>();
+
+        // Recent Activity
+        public List<AuditLog> RecentActivities { get; set; } = new();
     }
 
     public class DomainStat

@@ -57,6 +57,11 @@ public class HomeController : Controller
             .OrderByDescending(d => d.LastUpdated)
             .ToListAsync();
 
+        var recentActivities = await _context.AuditLogs
+            .OrderByDescending(a => a.Timestamp)
+            .Take(5)
+            .ToListAsync();
+
         var viewModel = new DashboardViewModel
         {
             TotalDatabases = totalDatabases,
@@ -68,7 +73,8 @@ public class HomeController : Controller
             DimensionTablesCount = dimensionTablesCount,
             TopDomains = topDomains,
             LargestTables = largestTables,
-            DatabasesStatus = databasesStatus
+            DatabasesStatus = databasesStatus,
+            RecentActivities = recentActivities
         };
 
         return View(viewModel);
