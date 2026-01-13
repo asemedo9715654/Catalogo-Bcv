@@ -7,6 +7,13 @@ namespace CatalogoBCV.Models
         Obsoleta
     }
 
+    public enum ConfidentialityLevel
+    {
+        Publico,
+        Interno,
+        Restrito
+    }
+
     public class Table
     {
         public int Id { get; set; }
@@ -20,6 +27,13 @@ namespace CatalogoBCV.Models
         public long? RowCount { get; set; }
         public bool IsFactTable { get; set; } // Flag manual ou inferida
         public TableStatus Status { get; set; } = TableStatus.EmValidacao;
+
+        // New properties
+        public string? Owner { get; set; }
+        public string? DataSteward { get; set; }
+        public ConfidentialityLevel ConfidentialityLevel { get; set; } = ConfidentialityLevel.Interno;
+        public string? AffectedReports { get; set; }
+        public string? DependentDashboards { get; set; }
 
         public int? DomainId { get; set; }
         public Domain? Domain { get; set; }

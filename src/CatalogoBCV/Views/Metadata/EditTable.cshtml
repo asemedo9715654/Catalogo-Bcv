@@ -61,6 +61,45 @@
                                 <label class="form-check-label" asp-for="IsFactTable">Tabela de Factos</label>
                             </div>
 
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="Owner" class="form-label">Owner da Tabela</label>
+                                        <input asp-for="Owner" class="form-control" />
+                                        <span asp-validation-for="Owner" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="DataSteward" class="form-label">Data Steward</label>
+                                        <input asp-for="DataSteward" class="form-control" />
+                                        <span asp-validation-for="DataSteward" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="ConfidentialityLevel" class="control-label">Nível de Confidencialidade</label>
+                                <select asp-for="ConfidentialityLevel" class="form-control" asp-items="Html.GetEnumSelectList<CatalogoBCV.Models.ConfidentialityLevel>()"></select>
+                                <span asp-validation-for="ConfidentialityLevel" class="text-danger"></span>
+                            </div>
+
+                            <div class="card bg-light mb-3">
+                                <div class="card-header fw-bold">Impacto</div>
+                                <div class="card-body">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="AffectedReports" class="form-label">Relatórios afetados</label>
+                                        <textarea asp-for="AffectedReports" class="form-control" rows="2"></textarea>
+                                        <span asp-validation-for="AffectedReports" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label asp-for="DependentDashboards" class="form-label">Dashboards dependentes</label>
+                                        <textarea asp-for="DependentDashboards" class="form-control" rows="2"></textarea>
+                                        <span asp-validation-for="DependentDashboards" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group mb-3">
                                 <label asp-for="Description" class="form-label"></label>
                                 <textarea asp-for="Description" class="form-control" rows="5"></textarea>

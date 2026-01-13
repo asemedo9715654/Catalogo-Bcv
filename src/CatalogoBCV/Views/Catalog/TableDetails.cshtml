@@ -91,6 +91,37 @@
                                 }
                             </dd>
 
+                            <dt class="col-sm-3">Owner</dt>
+                            <dd class="col-sm-9">@(Model.Owner ?? "-")</dd>
+
+                            <dt class="col-sm-3">Data Steward</dt>
+                            <dd class="col-sm-9">@(Model.DataSteward ?? "-")</dd>
+
+                            <dt class="col-sm-3">Confidencialidade</dt>
+                            <dd class="col-sm-9">
+                                @switch (Model.ConfidentialityLevel)
+                                {
+                                    case CatalogoBCV.Models.ConfidentialityLevel.Publico:
+                                        <span class="badge bg-success">Público</span>
+                                        break;
+                                    case CatalogoBCV.Models.ConfidentialityLevel.Interno:
+                                        <span class="badge bg-warning text-dark">Interno</span>
+                                        break;
+                                    case CatalogoBCV.Models.ConfidentialityLevel.Restrito:
+                                        <span class="badge bg-danger">Restrito</span>
+                                        break;
+                                    default:
+                                        @Model.ConfidentialityLevel
+                                        break;
+                                }
+                            </dd>
+
+                            <dt class="col-sm-3">Relatórios Afetados</dt>
+                            <dd class="col-sm-9">@(Model.AffectedReports ?? "-")</dd>
+
+                            <dt class="col-sm-3">Dashboards</dt>
+                            <dd class="col-sm-9">@(Model.DependentDashboards ?? "-")</dd>
+
                             <dt class="col-sm-3">Descrição</dt>
                             <dd class="col-sm-9">@Model.Description</dd>
                             
