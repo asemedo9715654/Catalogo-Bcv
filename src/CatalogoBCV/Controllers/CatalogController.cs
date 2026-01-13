@@ -4,6 +4,14 @@ using CatalogoBCV.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using Color = QuestPDF.Infrastructure.Color;
+using Table = CatalogoBCV.Models.Table; // Explicitly use the model Table
 
 namespace CatalogoBCV.Controllers
 {
@@ -27,7 +35,7 @@ namespace CatalogoBCV.Controllers
             return View(databases);
         }
 
-        public async Task<IActionResult> GenerateDocumentation(int id)
+        public async Task<IActionResult> GenerateDocumentation(int id, string format = "md")
         {
             var db = await _context.CatalogDatabases
                 .Include(d => d.Tables)
@@ -35,6 +43,15 @@ namespace CatalogoBCV.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (db == null) return NotFound();
+
+            if (format.ToLower() == "word")
+            {
+                return GenerateWordDocumentation(db);
+            }
+            else if (format.ToLower() == "pdf")
+            {
+                return GeneratePdfDocumentation(db);
+            }
 
             var sb = new System.Text.StringBuilder();
             sb.AppendLine($"# Documentação do Catálogo de Dados - {db.DatabaseName}");
@@ -62,6 +79,187 @@ namespace CatalogoBCV.Controllers
 
             var content = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
             return File(content, "text/markdown", $"Catalogo_{db.DatabaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.md");
+        }
+
+        private IActionResult GenerateWordDocumentation(CatalogDatabase db)
+        {
+            using (var mem = new MemoryStream())
+            {
+                using (var wordDocument = WordprocessingDocument.Create(mem, WordprocessingDocumentType.Document))
+                {
+                    var mainPart = wordDocument.AddMainDocumentPart();
+                    mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
+                    var body = mainPart.Document.AppendChild(new Body());
+
+                    // Title
+                    body.AppendChild(new Paragraph(new Run(new Text($"Documentação do Catálogo de Dados - {db.DatabaseName}")) { RunProperties = new RunProperties(new Bold(), new FontSize { Val = "32" }) }));
+                    body.AppendChild(new Paragraph(new Run(new Text($"Gerado em: {DateTime.Now}"))));
+                    body.AppendChild(new Paragraph(new Run(new Text("")))); // Empty line
+
+                    // DB Info
+                    body.AppendChild(new Paragraph(new Run(new Text($"Base de Dados: {db.DatabaseName}")) { RunProperties = new RunProperties(new Bold(), new FontSize { Val = "28" }) }));
+                    body.AppendChild(new Paragraph(new Run(new Text($"Servidor: {db.Server}"))));
+                    body.AppendChild(new Paragraph(new Run(new Text(""))));
+
+                    foreach (var table in db.Tables)
+                    {
+                        body.AppendChild(new Paragraph(new Run(new Text($"Tabela: {table.Schema}.{table.Name}")) { RunProperties = new RunProperties(new Bold(), new FontSize { Val = "24" }) }));
+                        body.AppendChild(new Paragraph(new Run(new Text($"Descrição: {table.Description ?? "N/A"}"))));
+                        
+                        // Table for Columns
+                        var wordTable = new DocumentFormat.OpenXml.Wordprocessing.Table();
+                        
+                        // Table Properties (Borders)
+                        var tblProps = new TableProperties(
+                            new TableBorders(
+                                new TopBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                                new BottomBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                                new LeftBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                                new RightBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                                new InsideHorizontalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 },
+                                new InsideVerticalBorder { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 4 }
+                            )
+                        );
+                        wordTable.AppendChild(tblProps);
+
+                        // Header Row
+                        var tr = new TableRow();
+                        tr.Append(
+                            CreateCell("Coluna", true),
+                            CreateCell("Tipo", true),
+                            CreateCell("Nulável", true),
+                            CreateCell("PK", true),
+                            CreateCell("FK", true),
+                            CreateCell("Descrição", true)
+                        );
+                        wordTable.Append(tr);
+
+                        // Data Rows
+                        foreach (var col in table.Columns)
+                        {
+                            var row = new TableRow();
+                            row.Append(
+                                CreateCell(col.Name),
+                                CreateCell(col.DataType),
+                                CreateCell(col.IsNullable ? "Sim" : "Não"),
+                                CreateCell(col.IsPrimaryKey ? "Sim" : "Não"),
+                                CreateCell(col.IsForeignKey ? "Sim" : "Não"),
+                                CreateCell(col.Description ?? "")
+                            );
+                            wordTable.Append(row);
+                        }
+
+                        body.AppendChild(wordTable);
+                        body.AppendChild(new Paragraph(new Run(new Text(""))));
+                    }
+                }
+
+                return File(mem.ToArray(), "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"Catalogo_{db.DatabaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.docx");
+            }
+        }
+
+        private TableCell CreateCell(string text, bool bold = false)
+        {
+            var run = new Run(new Text(text));
+            if (bold) run.RunProperties = new RunProperties(new Bold());
+            return new TableCell(new Paragraph(run));
+        }
+
+        private IActionResult GeneratePdfDocumentation(CatalogDatabase db)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var document = QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.PageColor(QuestPDF.Helpers.Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(11));
+
+                    page.Header()
+                        .Text($"Documentação - {db.DatabaseName}")
+                        .SemiBold().FontSize(20).FontColor(QuestPDF.Helpers.Colors.Blue.Medium);
+
+                    page.Content()
+                        .PaddingVertical(1, Unit.Centimetre)
+                        .Column(x =>
+                        {
+                            x.Spacing(20);
+
+                            x.Item().Text($"Gerado em: {DateTime.Now}");
+                            x.Item().Text($"Servidor: {db.Server}");
+
+                            foreach (var table in db.Tables)
+                            {
+                                x.Item().Column(c =>
+                                {
+                                    c.Spacing(5);
+                                    c.Item().Text($"Tabela: {table.Schema}.{table.Name}").FontSize(16).Bold();
+                                    c.Item().Text($"Descrição: {table.Description ?? "N/A"}").Italic();
+
+                                    c.Item().Table(t =>
+                                    {
+                                        t.ColumnsDefinition(columns =>
+                                        {
+                                            columns.RelativeColumn(2);
+                                            columns.RelativeColumn(2);
+                                            columns.RelativeColumn(1);
+                                            columns.RelativeColumn(1);
+                                            columns.RelativeColumn(1);
+                                            columns.RelativeColumn(3);
+                                        });
+
+                                        t.Header(header =>
+                                        {
+                                            header.Cell().Element(CellStyle).Text("Coluna");
+                                            header.Cell().Element(CellStyle).Text("Tipo");
+                                            header.Cell().Element(CellStyle).Text("Nulável");
+                                            header.Cell().Element(CellStyle).Text("PK");
+                                            header.Cell().Element(CellStyle).Text("FK");
+                                            header.Cell().Element(CellStyle).Text("Descrição");
+
+                                            static IContainer CellStyle(IContainer container)
+                                            {
+                                                return container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).BorderBottom(1).BorderColor(QuestPDF.Helpers.Colors.Black);
+                                            }
+                                        });
+
+                                        foreach (var col in table.Columns)
+                                        {
+                                            t.Cell().Element(CellStyle).Text(col.Name);
+                                            t.Cell().Element(CellStyle).Text(col.DataType);
+                                            t.Cell().Element(CellStyle).Text(col.IsNullable ? "Sim" : "Não");
+                                            t.Cell().Element(CellStyle).Text(col.IsPrimaryKey ? "Sim" : "Não");
+                                            t.Cell().Element(CellStyle).Text(col.IsForeignKey ? "Sim" : "Não");
+                                            t.Cell().Element(CellStyle).Text(col.Description ?? "");
+
+                                            static IContainer CellStyle(IContainer container)
+                                            {
+                                                return container.BorderBottom(1).BorderColor(QuestPDF.Helpers.Colors.Grey.Lighten2).PaddingVertical(5);
+                                            }
+                                        }
+                                    });
+                                });
+                            }
+                        });
+
+                    page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span("Página ");
+                            x.CurrentPageNumber();
+                        });
+                });
+            });
+
+            var stream = new MemoryStream();
+            document.GeneratePdf(stream);
+            stream.Position = 0;
+
+            return File(stream, "application/pdf", $"Catalogo_{db.DatabaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
         }
 
         public IActionResult Create()
@@ -398,7 +596,7 @@ namespace CatalogoBCV.Controllers
             var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagName);
             if (tag == null)
             {
-                tag = new Tag { Name = tagName };
+                tag = new CatalogoBCV.Models.Tag { Name = tagName };
                 _context.Tags.Add(tag);
                 await _context.SaveChangesAsync(); // Save to get Id
             }
@@ -427,7 +625,7 @@ namespace CatalogoBCV.Controllers
             var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagName);
             if (tag == null)
             {
-                tag = new Tag { Name = tagName };
+                tag = new CatalogoBCV.Models.Tag { Name = tagName };
                 _context.Tags.Add(tag);
                 await _context.SaveChangesAsync();
             }

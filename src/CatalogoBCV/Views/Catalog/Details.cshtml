@@ -113,6 +113,16 @@
                         <a asp-controller="Graph" asp-action="Index" asp-route-dbId="@Model.Id" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-diagram-3 me-1"></i> Visualizar Gráfico
                         </a>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="viewport">
+                                <i class="bi bi-file-earmark-text me-1"></i> Documentação
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-action="GenerateDocumentation" asp-route-id="@Model.Id" asp-route-format="md"><i class="bi bi-markdown me-2"></i>Markdown</a></li>
+                                <li><a class="dropdown-item" asp-action="GenerateDocumentation" asp-route-id="@Model.Id" asp-route-format="word"><i class="bi bi-file-word me-2"></i>Word</a></li>
+                                <li><a class="dropdown-item" asp-action="GenerateDocumentation" asp-route-id="@Model.Id" asp-route-format="pdf"><i class="bi bi-file-pdf me-2"></i>PDF</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
