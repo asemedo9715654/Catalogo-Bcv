@@ -1,6 +1,19 @@
 @model CatalogoBCV.Models.Table
 
 @functions {
+    string GetStatusBadge(CatalogoBCV.Models.TableStatus status)
+    {
+        return status switch
+        {
+            CatalogoBCV.Models.TableStatus.Rascunho => "<span class='badge bg-warning text-dark'>🟡 Rascunho</span>",
+            CatalogoBCV.Models.TableStatus.EmValidacao => "<span class='badge bg-info text-dark'>🔵 Em Validação</span>",
+            CatalogoBCV.Models.TableStatus.Aprovado => "<span class='badge bg-success'>🟢 Aprovado</span>",
+            CatalogoBCV.Models.TableStatus.Obsoleto => "<span class='badge bg-danger'>🔴 Obsoleto</span>",
+            CatalogoBCV.Models.TableStatus.Depreciado => "<span class='badge bg-warning'>⚠️ Depreciado</span>",
+            _ => $"<span class='badge bg-secondary'>{status}</span>"
+        };
+    }
+
     string GetCommentTypeBadgeClass(CatalogoBCV.Models.CommentType type)
     {
         return type switch
@@ -104,21 +117,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text text-center text-muted">Status</span>
                                         <span class="info-box-number text-center text-muted mb-0">
-                                            @switch (Model.Status)
-                                            {
-                                                case CatalogoBCV.Models.TableStatus.Certificada:
-                                                    <span class="badge bg-success">Certificada</span>
-                                                    break;
-                                                case CatalogoBCV.Models.TableStatus.EmValidacao:
-                                                    <span class="badge bg-warning">Em validação</span>
-                                                    break;
-                                                case CatalogoBCV.Models.TableStatus.Obsoleta:
-                                                    <span class="badge bg-danger">Obsoleta</span>
-                                                    break;
-                                                default:
-                                                    <span class="badge bg-secondary">@Model.Status</span>
-                                                    break;
-                                            }
+                                            @Html.Raw(GetStatusBadge(Model.Status))
                                         </span>
                                     </div>
                                 </div>
@@ -199,11 +198,15 @@
                     </div>
                 </div>
                 <br>
+                
                 <div class="card card-primary card-outline card-outline-tabs">
                     <div class="card-header p-0 border-bottom-0">
                         <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="custom-tabs-four-columns-tab" data-bs-toggle="tab" href="#custom-tabs-four-columns" role="tab" aria-controls="custom-tabs-four-columns" aria-selected="true">Colunas (@Model.Columns.Count)</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="custom-tabs-four-workflow-tab" data-bs-toggle="tab" href="#custom-tabs-four-workflow" role="tab" aria-controls="custom-tabs-four-workflow" aria-selected="false">Workflow</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="custom-tabs-four-graph-tab" data-bs-toggle="tab" href="#custom-tabs-four-graph" role="tab" aria-controls="custom-tabs-four-graph" aria-selected="false">Gráfico</a>
@@ -215,8 +218,82 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="tab-content" id="custom-tabs-four-tabContent">
-                            <div class="tab-pane fade show active" id="custom-tabs-four-columns" role="tabpanel" aria-labelledby="custom-tabs-four-columns-tab">
-                                <div class="p-2">
+                            <div class="tab-pane fade" id="custom-tabs-four-workflow" role="tabpanel" aria-labelledby="custom-tabs-four-workflow-tab">
+                                <div class="p-4">
+                                    <h4 class="mb-4">Workflow de Aprovação</h4>
+                                    
+                                    <div class="position-relative m-4" style="height: 60px;">
+                                        <div class="progress" style="height: 4px; position: absolute; top: 15px; width: 100%;">
+                                            @{
+                                                var progressWidth = "0%";
+                                                var step1Class = "btn-secondary";
+                                                var step2Class = "btn-secondary";
+                                                var step3Class = "btn-secondary";
+                                                
+                                                if (Model.Status == CatalogoBCV.Models.TableStatus.Rascunho)
+                                                {
+                                                    progressWidth = "0%";
+                                                    step1Class = "btn-warning";
+                                                }
+                                                else if (Model.Status == CatalogoBCV.Models.TableStatus.EmValidacao)
+                                                {
+                                                    progressWidth = "50%";
+                                                    step1Class = "btn-success";
+                                                    step2Class = "btn-info";
+                                                }
+                                                else if (Model.Status == CatalogoBCV.Models.TableStatus.Aprovado)
+                                                {
+                                                    progressWidth = "100%";
+                                                    step1Class = "btn-success";
+                                                    step2Class = "btn-success";
+                                                    step3Class = "btn-success";
+                                                }
+                                                else
+                                                {
+                                                    // Obsolete/Deprecated logic
+                                                    progressWidth = "0%";
+                                                    step1Class = "btn-secondary";
+                                                }
+                                            }
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: @progressWidth;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        
+                                        <div class="position-absolute top-0 start-0 translate-middle" style="left: 0% !important;">
+                                            <button type="button" class="btn btn-sm @step1Class rounded-pill" style="width: 2.5rem; height:2.5rem; padding: 0;">1</button>
+                                            <div class="text-center mt-1" style="width: 100px; margin-left: -35px;"><small class="fw-bold">Rascunho</small></div>
+                                        </div>
+                                        
+                                        <div class="position-absolute top-0 start-50 translate-middle">
+                                            <button type="button" class="btn btn-sm @step2Class rounded-pill" style="width: 2.5rem; height:2.5rem; padding: 0;">2</button>
+                                            <div class="text-center mt-1" style="width: 120px; margin-left: -45px;"><small class="fw-bold">Em Validação</small></div>
+                                        </div>
+                                        
+                                        <div class="position-absolute top-0 start-100 translate-middle" style="left: 100% !important;">
+                                            <button type="button" class="btn btn-sm @step3Class rounded-pill" style="width: 2.5rem; height:2.5rem; padding: 0;">3</button>
+                                            <div class="text-center mt-1" style="width: 100px; margin-left: -35px;"><small class="fw-bold">Aprovado</small></div>
+                                        </div>
+                                    </div>
+                                    
+                                    @if(Model.Status == CatalogoBCV.Models.TableStatus.Obsoleto || Model.Status == CatalogoBCV.Models.TableStatus.Depreciado)
+                                    {
+                                        <div class="alert alert-danger mt-5 mb-0 text-center">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            Esta tabela está marcada como <strong>@Model.Status</strong> e saiu do fluxo normal de aprovação.
+                                        </div>
+                                    }
+                                    
+                                    <div class="mt-5 pt-3 border-top">
+                                        <h5>Histórico de Aprovação</h5>
+                                        <div class="timeline mt-3">
+                                            <!-- Placeholder for future audit log integration -->
+                                            <div class="text-muted fst-italic">
+                                                <i class="bi bi-info-circle me-1"></i> O histórico detalhado de mudanças de status será exibido aqui.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="tab-pane fade show active" id="custom-tabs-four-columns" role="tabpanel" aria-labelledby="custom-tabs-four-columns-tab">
                                     <div class="input-group input-group-sm float-end mb-2" style="width: 250px;">
                                         <input type="text" id="columnSearch" class="form-control" placeholder="Pesquisar colunas...">
                                         <button type="button" class="btn btn-outline-secondary">
@@ -224,7 +301,6 @@
                                         </button>
                                     </div>
                                     <div class="clearfix"></div>
-                                </div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-striped mb-0">
                                         <thead>
@@ -380,7 +456,7 @@
 
                 <div class="card mb-3">
                     <div class="card-header">
-                        <h3 class="card-title">Comentários</h3>
+                        <h3 class="card-title"><i class="bi bi-chat-left-text me-2"></i>Comentários</h3>
                     </div>
                     <div class="card-body bg-light p-3" style="max-height: 500px; overflow-y: auto;">
                         @if (Model.Comments.Any())

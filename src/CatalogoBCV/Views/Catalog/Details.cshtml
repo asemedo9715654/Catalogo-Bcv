@@ -5,7 +5,22 @@
     var totalTables = Model.Tables.Count;
     var totalRows = Model.Tables.Sum(t => t.RowCount ?? 0);
     var lastUpdated = Model.LastUpdated?.ToString("dd/MM/yyyy HH:mm") ?? "N/A";
-    var certifiedCount = Model.Tables.Count(t => t.Status == CatalogoBCV.Models.TableStatus.Certificada);
+    var certifiedCount = Model.Tables.Count(t => t.Status == CatalogoBCV.Models.TableStatus.Aprovado);
+}
+
+@functions {
+    string GetStatusBadge(CatalogoBCV.Models.TableStatus status)
+    {
+        return status switch
+        {
+            CatalogoBCV.Models.TableStatus.Rascunho => "<span class='badge bg-warning text-dark'>🟡 Rascunho</span>",
+            CatalogoBCV.Models.TableStatus.EmValidacao => "<span class='badge bg-info text-dark'>🔵 Em Validação</span>",
+            CatalogoBCV.Models.TableStatus.Aprovado => "<span class='badge bg-success'>🟢 Aprovado</span>",
+            CatalogoBCV.Models.TableStatus.Obsoleto => "<span class='badge bg-danger'>🔴 Obsoleto</span>",
+            CatalogoBCV.Models.TableStatus.Depreciado => "<span class='badge bg-warning'>⚠️ Depreciado</span>",
+            _ => $"<span class='badge bg-secondary'>{status}</span>"
+        };
+    }
 }
 
 @section ContentHeader {
@@ -136,7 +151,7 @@
                                 <th>Alias</th>
                                 <th>Status</th>
                                 <th>Tipo</th>
-                                <th class="text-end">Registros</th>
+                                <th class="text-end">Linhas</th>
                                 <th>Descrição</th>
                                 <th class="text-end pe-4" style="width: 120px">Ações</th>
                             </tr>
@@ -166,27 +181,7 @@
                                         }
                                     </td>
                                     <td>
-                                        @switch (table.Status)
-                                        {
-                                            case CatalogoBCV.Models.TableStatus.Certificada:
-                                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25">
-                                                    <i class="bi bi-check-circle-fill me-1"></i>Certificada
-                                                </span>
-                                                break;
-                                            case CatalogoBCV.Models.TableStatus.EmValidacao:
-                                                <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">
-                                                    <i class="bi bi-exclamation-circle-fill me-1"></i>Em validação
-                                                </span>
-                                                break;
-                                            case CatalogoBCV.Models.TableStatus.Obsoleta:
-                                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
-                                                    <i class="bi bi-x-circle-fill me-1"></i>Obsoleta
-                                                </span>
-                                                break;
-                                            default:
-                                                <span class="badge rounded-pill bg-secondary">@table.Status</span>
-                                                break;
-                                        }
+                                        @Html.Raw(GetStatusBadge(table.Status))
                                     </td>
                                     <td>
                                         <span class="badge bg-light text-secondary border">@table.Type</span>

@@ -1,10 +1,23 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace CatalogoBCV.Models
 {
     public enum TableStatus
     {
-        EmValidacao,
-        Certificada,
-        Obsoleta
+        [Display(Name = "Rascunho")]
+        Rascunho = 3, // New
+        
+        [Display(Name = "Em Validação")]
+        EmValidacao = 0, // Matches old EmValidacao
+        
+        [Display(Name = "Aprovado")]
+        Aprovado = 1, // Matches old Certificada
+        
+        [Display(Name = "Obsoleto")]
+        Obsoleto = 2, // Matches old Obsoleta
+        
+        [Display(Name = "Depreciado")]
+        Depreciado = 4 // New
     }
 
     public enum ConfidentialityLevel
