@@ -6,13 +6,40 @@
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" />
+
+<style>
+    .audit-badge {
+        font-size: 0.9em;
+        padding: 0.5em 0.8em;
+    }
+    .text-truncate-cell {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+    .card-audit {
+        border: none;
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    }
+</style>
 
 @section ContentHeader {
     <div class="app-content-header">
         <div class="container-fluid">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-sm-6">
-                    <h3 class="mb-0">Logs de Auditoria</h3>
+                    <h3 class="mb-0"><i class="bi bi-journal-text me-2"></i>Logs de Auditoria</h3>
+                    <p class="text-muted mb-0">Rastreio completo das alterações no sistema</p>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Home</a></li>
+                        <li class="breadcrumb-item active">Auditoria</li>
+                    </ol>
                 </div>
             </div>
         </div>
@@ -21,63 +48,264 @@
 
 <section class="content">
     <div class="container-fluid">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Histórico de Alterações</h3>
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box shadow-sm">
+                    <span class="info-box-icon bg-info"><i class="bi bi-clock-history"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total de Registos</span>
+                        <span class="info-box-number">@Model.Count()</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box shadow-sm">
+                    <span class="info-box-icon bg-success"><i class="bi bi-plus-lg"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Criações</span>
+                        <span class="info-box-number">@Model.Count(x => x.Action == "Create")</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box shadow-sm">
+                    <span class="info-box-icon bg-warning"><i class="bi bi-pencil"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Atualizações</span>
+                        <span class="info-box-number">@Model.Count(x => x.Action == "Update")</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box shadow-sm">
+                    <span class="info-box-icon bg-danger"><i class="bi bi-trash"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Remoções</span>
+                        <span class="info-box-number">@Model.Count(x => x.Action == "Delete")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-audit card-outline card-primary">
+            <div class="card-header border-0">
+                <h3 class="card-title">
+                    <i class="bi bi-table me-1"></i>
+                    Histórico Detalhado
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <i class="bi bi-dash-lg"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-lte-toggle="card-maximize">
+                        <i class="bi bi-fullscreen"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table id="auditTable" class="table table-striped table-hover">
-                        <thead>
+                <table id="auditTable" class="table table-hover table-striped w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Utilizador</th>
+                            <th>Ação</th>
+                            <th>Entidade</th>
+                            <th>ID</th>
+                            <th>Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
                             <tr>
-                                <th>Data</th>
-                                <th>Utilizador</th>
-                                <th>Ação</th>
-                                <th>Entidade</th>
-                                <th>ID Entidade</th>
-                                <th>Valor Antigo</th>
-                                <th>Novo Valor</th>
+                                <td data-sort="@item.Timestamp.ToString("yyyyMMddHHmmss")">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold">@item.Timestamp.ToShortDateString()</span>
+                                        <small class="text-muted">@item.Timestamp.ToLongTimeString()</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-placeholder me-2 bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            <i class="bi bi-person text-secondary"></i>
+                                        </div>
+                                        <span>@item.Username</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    @{
+                                        var badgeClass = item.Action switch
+                                        {
+                                            "Create" => "bg-success",
+                                            "Update" => "bg-warning text-dark",
+                                            "Delete" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                        var iconClass = item.Action switch
+                                        {
+                                            "Create" => "bi-plus-lg",
+                                            "Update" => "bi-pencil",
+                                            "Delete" => "bi-trash",
+                                            _ => "bi-info-circle"
+                                        };
+                                    }
+                                    <span class="badge @badgeClass audit-badge rounded-pill">
+                                        <i class="bi @iconClass me-1"></i> @item.Action
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-database me-1"></i> @item.EntityType
+                                    </span>
+                                </td>
+                                <td><small class="font-monospace">@item.EntityId</small></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary btn-view-details" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#detailsModal"
+                                            data-old="@item.OldValue"
+                                            data-new="@item.NewValue"
+                                            data-action="@item.Action"
+                                            data-entity="@item.EntityType"
+                                            data-id="@item.EntityId">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>@item.Timestamp</td>
-                                    <td>@item.Username</td>
-                                    <td>
-                                        <span class="badge bg-@(item.Action == "Create" ? "success" : item.Action == "Update" ? "warning" : "danger")">
-                                            @item.Action
-                                        </span>
-                                    </td>
-                                    <td>@item.EntityType</td>
-                                    <td>@item.EntityId</td>
-                                    <td class="text-truncate" style="max-width: 150px;" title="@item.OldValue">@item.OldValue</td>
-                                    <td class="text-truncate" style="max-width: 150px;" title="@item.NewValue">@item.NewValue</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Modal de Detalhes -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">
+                    <i class="bi bi-info-circle me-2"></i>Detalhes da Alteração
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-light border mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Entidade:</strong> <span id="modalEntity"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>ID:</strong> <span id="modalId"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Ação:</strong> <span id="modalAction" class="badge"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-danger bg-danger bg-opacity-10">
+                            <div class="card-header bg-danger text-white py-1">
+                                <small>Valor Antigo</small>
+                            </div>
+                            <div class="card-body p-2">
+                                <pre id="modalOldValue" class="mb-0" style="white-space: pre-wrap; font-size: 0.85em;"></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-success bg-success bg-opacity-10">
+                            <div class="card-header bg-success text-white py-1">
+                                <small>Novo Valor</small>
+                            </div>
+                            <div class="card-body p-2">
+                                <pre id="modalNewValue" class="mb-0" style="white-space: pre-wrap; font-size: 0.85em;"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <!-- DataTables & Plugins -->
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+
     <script>
         $(document).ready(function () {
-            $('#auditTable').DataTable({
+            // Inicializar DataTable com opções modernas
+            var table = $('#auditTable').DataTable({
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json"
                 },
                 "order": [[0, "desc"]], // Ordenar por data decrescente
                 "responsive": true,
-                "autoWidth": false
+                "autoWidth": false,
+                "dom": '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+                "buttons": [
+                    { extend: 'copy', className: 'btn btn-secondary btn-sm', text: '<i class="bi bi-clipboard"></i> Copiar' },
+                    { extend: 'csv', className: 'btn btn-secondary btn-sm', text: '<i class="bi bi-file-earmark-spreadsheet"></i> CSV' },
+                    { extend: 'excel', className: 'btn btn-secondary btn-sm', text: '<i class="bi bi-file-earmark-excel"></i> Excel' },
+                    { extend: 'print', className: 'btn btn-secondary btn-sm', text: '<i class="bi bi-printer"></i> Imprimir' }
+                ]
+            });
+
+            // Handler para o Modal de Detalhes
+            $('#detailsModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var oldValue = button.data('old');
+                var newValue = button.data('new');
+                var action = button.data('action');
+                var entity = button.data('entity');
+                var id = button.data('id');
+
+                var modal = $(this);
+                modal.find('#modalEntity').text(entity);
+                modal.find('#modalId').text(id);
+                
+                var actionBadge = modal.find('#modalAction');
+                actionBadge.text(action);
+                actionBadge.removeClass('bg-success bg-warning bg-danger bg-secondary text-dark');
+                
+                if (action === 'Create') actionBadge.addClass('bg-success');
+                else if (action === 'Update') actionBadge.addClass('bg-warning text-dark');
+                else if (action === 'Delete') actionBadge.addClass('bg-danger');
+                else actionBadge.addClass('bg-secondary');
+
+                // Formatar JSON se possível
+                try {
+                    if (oldValue && (oldValue.startsWith('{') || oldValue.startsWith('['))) {
+                        oldValue = JSON.stringify(JSON.parse(oldValue), null, 2);
+                    }
+                    if (newValue && (newValue.startsWith('{') || newValue.startsWith('['))) {
+                        newValue = JSON.stringify(JSON.parse(newValue), null, 2);
+                    }
+                } catch (e) {
+                    // Não é JSON válido, manter como está
+                }
+
+                modal.find('#modalOldValue').text(oldValue || '(vazio)');
+                modal.find('#modalNewValue').text(newValue || '(vazio)');
             });
         });
     </script>
