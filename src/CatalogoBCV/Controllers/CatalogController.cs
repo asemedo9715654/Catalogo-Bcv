@@ -318,7 +318,7 @@ namespace CatalogoBCV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTableComment(int tableId, string content)
+        public async Task<IActionResult> AddTableComment(int tableId, string content, CommentType type)
         {
             if (string.IsNullOrWhiteSpace(content)) return RedirectToAction(nameof(TableDetails), new { id = tableId });
 
@@ -329,6 +329,7 @@ namespace CatalogoBCV.Controllers
             {
                 TableId = tableId,
                 Content = content,
+                Type = type,
                 Author = User.Identity?.Name ?? "System",
                 CreatedAt = DateTime.Now
             };
@@ -340,7 +341,27 @@ namespace CatalogoBCV.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddColumnComment(int columnId, string content)
+        public async Task<IActionResult> EditTableComment(int commentId, string content, CommentType type)
+        {
+            var comment = await _context.TableComments.FindAsync(commentId);
+            if (comment == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(content)) return RedirectToAction(nameof(TableDetails), new { id = comment.TableId });
+
+            // Optional: Check if user is author or admin
+            // if (comment.Author != User.Identity?.Name && !User.IsInRole("Admin")) return Forbid();
+
+            comment.Content = content;
+            comment.Type = type;
+            // comment.CreatedAt = DateTime.Now; // Keep original date or add UpdatedAt? Keeping original for now.
+            
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(TableDetails), new { id = comment.TableId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddColumnComment(int columnId, string content, CommentType type)
         {
             if (string.IsNullOrWhiteSpace(content)) 
             {
@@ -355,6 +376,7 @@ namespace CatalogoBCV.Controllers
             {
                 ColumnId = columnId,
                 Content = content,
+                Type = type,
                 Author = User.Identity?.Name ?? "System",
                 CreatedAt = DateTime.Now
             };

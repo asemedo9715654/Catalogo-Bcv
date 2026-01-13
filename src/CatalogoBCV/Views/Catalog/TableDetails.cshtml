@@ -1,5 +1,55 @@
 @model CatalogoBCV.Models.Table
 
+@functions {
+    string GetCommentTypeBadgeClass(CatalogoBCV.Models.CommentType type)
+    {
+        return type switch
+        {
+            CatalogoBCV.Models.CommentType.Suggestion => "bg-warning text-dark",
+            CatalogoBCV.Models.CommentType.KnownIssue => "bg-danger",
+            CatalogoBCV.Models.CommentType.ChangeWarning => "bg-info text-dark",
+            CatalogoBCV.Models.CommentType.BusinessDecision => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetCommentIcon(CatalogoBCV.Models.CommentType type)
+    {
+        return type switch
+        {
+            CatalogoBCV.Models.CommentType.Suggestion => "bi-lightbulb-fill",
+            CatalogoBCV.Models.CommentType.KnownIssue => "bi-bug-fill",
+            CatalogoBCV.Models.CommentType.ChangeWarning => "bi-megaphone-fill",
+            CatalogoBCV.Models.CommentType.BusinessDecision => "bi-pin-angle-fill",
+            _ => "bi-chat-left-text"
+        };
+    }
+    
+    string GetCommentLabel(CatalogoBCV.Models.CommentType type)
+    {
+         return type switch
+        {
+            CatalogoBCV.Models.CommentType.Suggestion => "Sugestão",
+            CatalogoBCV.Models.CommentType.KnownIssue => "Problema",
+            CatalogoBCV.Models.CommentType.ChangeWarning => "Aviso",
+            CatalogoBCV.Models.CommentType.BusinessDecision => "Decisão",
+            _ => "Comentário"
+        };
+    }
+
+    string GetCommentBorderClass(CatalogoBCV.Models.CommentType type)
+    {
+        return type switch
+        {
+            CatalogoBCV.Models.CommentType.Suggestion => "border-warning",
+            CatalogoBCV.Models.CommentType.KnownIssue => "border-danger",
+            CatalogoBCV.Models.CommentType.ChangeWarning => "border-info",
+            CatalogoBCV.Models.CommentType.BusinessDecision => "border-primary",
+            _ => "border-secondary"
+        };
+    }
+}
+
 @{
     ViewData["Title"] = "Detalhes da Tabela";
 }
@@ -267,21 +317,59 @@
                             <div class="d-flex flex-column gap-3">
                                 @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
                                 {
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0">
-                                            <div class="rounded-circle bg-primary bg-gradient d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                                @comment.Author.Substring(0, 1).ToUpper()
+                                    <div class="mb-3">
+                                        <div class="card shadow-sm mb-0 @GetCommentBorderClass(comment.Type)" style="border-left-width: 4px;">
+                                            <div class="card-header bg-white py-1 px-2 border-bottom-0 d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="badge @GetCommentTypeBadgeClass(comment.Type) me-2" title="@GetCommentLabel(comment.Type)">
+                                                        <i class="bi @GetCommentIcon(comment.Type) me-1"></i>
+                                                        @GetCommentLabel(comment.Type)
+                                                    </span>
+                                                    <span class="fw-bold text-primary small">@comment.Author</span>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <small class="text-muted me-2" style="font-size: 0.7rem;">@comment.CreatedAt.ToString("g")</small>
+                                                    <button type="button" class="btn btn-link btn-sm p-0 text-secondary" data-bs-toggle="modal" data-bs-target="#editCommentModal-@comment.Id" title="Editar">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body py-2 px-2">
+                                                <p class="card-text small text-secondary">@comment.Content</p>
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1 ms-2">
-                                            <div class="card border-0 shadow-sm mb-0">
-                                                <div class="card-header bg-white py-1 px-2 border-bottom-0 d-flex justify-content-between align-items-center">
-                                                    <span class="fw-bold text-primary small">@comment.Author</span>
-                                                    <small class="text-muted" style="font-size: 0.7rem;">@comment.CreatedAt.ToString("g")</small>
-                                                </div>
-                                                <div class="card-body py-2 px-2">
-                                                    <p class="card-text small text-secondary">@comment.Content</p>
-                                                </div>
+                                    </div>
+
+                                    <!-- Edit Modal -->
+                                    <div class="modal fade" id="editCommentModal-@comment.Id" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form asp-action="EditTableComment" method="post">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Editar Comentário</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="commentId" value="@comment.Id" />
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Tipo</label>
+                                                            <select name="type" class="form-select">
+                                                                 <option value="Suggestion" selected="@(comment.Type == CatalogoBCV.Models.CommentType.Suggestion)">💡 Sugestão</option>
+                                                                 <option value="KnownIssue" selected="@(comment.Type == CatalogoBCV.Models.CommentType.KnownIssue)">🐞 Problema Conhecido</option>
+                                                                 <option value="ChangeWarning" selected="@(comment.Type == CatalogoBCV.Models.CommentType.ChangeWarning)">📢 Aviso de Alteração</option>
+                                                                 <option value="BusinessDecision" selected="@(comment.Type == CatalogoBCV.Models.CommentType.BusinessDecision)">📌 Decisão de Negócio</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Comentário</label>
+                                                            <textarea name="content" class="form-control" rows="3" required>@comment.Content</textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-primary">Salvar</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -300,6 +388,12 @@
                         <form asp-action="AddTableComment" method="post">
                             <input type="hidden" name="tableId" value="@Model.Id" />
                             <div class="input-group">
+                                <select name="type" class="form-select flex-grow-0" style="width: 70px;" title="Tipo de comentário">
+                                     <option value="Suggestion" title="Sugestão">💡</option>
+                                     <option value="KnownIssue" title="Problema Conhecido">🐞</option>
+                                     <option value="ChangeWarning" title="Aviso de Alteração">📢</option>
+                                     <option value="BusinessDecision" title="Decisão de Negócio">📌</option>
+                                </select>
                                 <input type="text" name="content" class="form-control" placeholder="Escreva um comentário..." required />
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-send-fill"></i>
@@ -364,9 +458,14 @@
                                     <ul class="list-group list-group-flush bg-transparent">
                                         @foreach (var comment in col.Comments.OrderByDescending(c => c.CreatedAt))
                                         {
-                                            <li class="list-group-item p-2 bg-white rounded mb-2 border shadow-sm">
+                                            <li class="list-group-item p-2 bg-white rounded mb-2 shadow-sm @GetCommentBorderClass(comment.Type)" style="border-left-width: 4px;">
                                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <strong class="small text-primary">@comment.Author</strong>
+                                                    <div>
+                                                        <span class="badge @GetCommentTypeBadgeClass(comment.Type) me-1" style="font-size: 0.65rem;" title="@GetCommentLabel(comment.Type)">
+                                                            <i class="bi @GetCommentIcon(comment.Type)"></i>
+                                                        </span>
+                                                        <strong class="small text-primary">@comment.Author</strong>
+                                                    </div>
                                                     <small class="text-muted" style="font-size: 0.75em;">@comment.CreatedAt.ToString("dd/MM/yy HH:mm")</small>
                                                 </div>
                                                 <p class="mb-0 small text-break">@comment.Content</p>
@@ -384,6 +483,12 @@
                             <form asp-action="AddColumnComment" method="post">
                                 <input type="hidden" name="columnId" value="@col.Id" />
                                 <div class="input-group input-group-sm">
+                                    <select name="type" class="form-select flex-grow-0" style="width: 70px;" title="Tipo de comentário">
+                                         <option value="Suggestion" title="Sugestão">💡</option>
+                                         <option value="KnownIssue" title="Problema Conhecido">🐞</option>
+                                         <option value="ChangeWarning" title="Aviso de Alteração">📢</option>
+                                         <option value="BusinessDecision" title="Decisão de Negócio">📌</option>
+                                    </select>
                                     <input type="text" name="content" class="form-control" placeholder="Adicionar comentário..." required />
                                     <button type="submit" class="btn btn-outline-primary">
                                         <i class="bi bi-send"></i>
