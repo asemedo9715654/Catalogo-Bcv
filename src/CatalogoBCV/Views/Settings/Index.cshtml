@@ -3,42 +3,99 @@
     ViewData["Title"] = "Configurações do Sistema";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">@ViewData["Title"]</h3>
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-sm-6">
+                    <h3 class="mb-0"><i class="fas fa-cogs me-2"></i>@ViewData["Title"]</h3>
+                    <p class="text-muted mb-0">Gerencie as preferências e configurações da aplicação.</p>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Update" method="post">
-                        @foreach (var group in Model.GroupBy(x => x.Group))
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item active">Configurações</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="container-fluid">
+    <form asp-action="Update" method="post">
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Navigation (Optional, could be a list of groups to jump to) -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Categorias</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach (var group in Model.GroupBy(x => x.Group).OrderBy(g => g.Key))
                         {
-                            <h4 class="mt-4 mb-3 border-bottom pb-2">@group.Key</h4>
-                            
+                            <a href="#group-@group.Key.Replace(" ", "")" class="list-group-item list-group-item-action">
+                                <i class="@GetGroupIcon(group.Key) me-2 text-muted"></i> @group.Key
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary btn-block w-100 mb-2">
+                            <i class="fas fa-save me-2"></i> Salvar Tudo
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-block w-100">
+                            <i class="fas fa-arrow-left me-2"></i> Voltar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                @foreach (var group in Model.GroupBy(x => x.Group).OrderBy(g => g.Key))
+                {
+                    <div class="card shadow mb-4" id="group-@group.Key.Replace(" ", "")">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="@GetGroupIcon(group.Key) me-2"></i> @group.Key
+                            </h6>
+                        </div>
+                        <div class="card-body">
                             @foreach (var setting in group)
                             {
-                                <div class="mb-3 row">
-                                    <label for="setting_@setting.Key" class="col-sm-3 col-form-label">
-                                        @setting.Key
+                                <div class="form-group row mb-4">
+                                    <label for="setting_@setting.Key" class="col-sm-4 col-form-label">
+                                        <span class="font-weight-bold">@setting.Key</span>
                                         @if (!string.IsNullOrEmpty(setting.Description))
                                         {
-                                            <small class="d-block text-muted">@setting.Description</small>
+                                            <small class="d-block text-muted font-weight-normal mt-1">@setting.Description</small>
                                         }
                                     </label>
-                                    <div class="col-sm-9">
+                                    <div class="col-sm-8">
                                         @if (setting.Type == "boolean")
                                         {
-                                            <select name="settings[@setting.Key]" class="form-select">
-                                                <option value="true" selected="@(setting.Value.ToLower() == "true")">Sim</option>
-                                                <option value="false" selected="@(setting.Value.ToLower() == "false")">Não</option>
-                                            </select>
+                                            <div class="form-check form-switch pt-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="chk_@setting.Key" 
+                                                       @(setting.Value.ToLower() == "true" ? "checked" : "")
+                                                       onchange="document.getElementById('val_@setting.Key').value = this.checked ? 'true' : 'false'">
+                                                <label class="form-check-label" for="chk_@setting.Key">
+                                                    @(setting.Value.ToLower() == "true" ? "Ativado" : "Desativado")
+                                                </label>
+                                                <input type="hidden" id="val_@setting.Key" name="settings[@setting.Key]" value="@setting.Value.ToLower()">
+                                            </div>
+                                            <script>
+                                                document.getElementById('chk_@setting.Key').addEventListener('change', function() {
+                                                    this.nextElementSibling.textContent = this.checked ? 'Ativado' : 'Desativado';
+                                                });
+                                            </script>
                                         }
                                         else if (setting.Key == "Theme")
                                         {
                                             <select name="settings[@setting.Key]" class="form-select">
-                                                <option value="light" selected="@(setting.Value.ToLower() == "light")">Claro</option>
-                                                <option value="dark" selected="@(setting.Value.ToLower() == "dark")">Escuro</option>
+                                                <option value="light" selected="@(setting.Value.ToLower() == "light")">☀️ Claro</option>
+                                                <option value="dark" selected="@(setting.Value.ToLower() == "dark")">🌙 Escuro</option>
                                             </select>
                                         }
                                         else if (setting.Type == "number")
@@ -47,7 +104,14 @@
                                         }
                                         else if (setting.Type == "color")
                                         {
-                                            <input type="color" class="form-control form-control-color" name="settings[@setting.Key]" value="@setting.Value" title="Choose your color">
+                                            <div class="input-group">
+                                                <input type="color" class="form-control form-control-color" id="color_@setting.Key" 
+                                                       value="@setting.Value" title="Escolha a cor"
+                                                       onchange="document.getElementById('text_@setting.Key').value = this.value">
+                                                <input type="text" class="form-control" id="text_@setting.Key" 
+                                                       name="settings[@setting.Key]" value="@setting.Value" 
+                                                       onchange="document.getElementById('color_@setting.Key').value = this.value">
+                                            </div>
                                         }
                                         else
                                         {
@@ -55,17 +119,30 @@
                                         }
                                     </div>
                                 </div>
+                                @if (setting != group.Last())
+                                {
+                                    <hr class="sidebar-divider my-3">
+                                }
                             }
-                        }
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Salvar Alterações
-                            </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                }
             </div>
         </div>
-    </div>
+    </form>
 </div>
+
+@functions {
+    string GetGroupIcon(string groupName)
+    {
+        return groupName?.ToLower() switch
+        {
+            "general" => "fas fa-cogs",
+            "appearance" => "fas fa-paint-brush",
+            "security" => "fas fa-shield-alt",
+            "email" => "fas fa-envelope",
+            "integrations" => "fas fa-plug",
+            _ => "fas fa-sliders-h"
+        };
+    }
+}
