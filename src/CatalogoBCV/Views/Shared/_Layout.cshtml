@@ -11,6 +11,21 @@
     // Based on previous code, there was a dark mode toggle that probably toggles a class or attribute.
     // Let's assume 'dark-mode' class on body or data-bs-theme="dark" on body.
     // Checking adminlte v4 docs or usage, it often uses data-bs-theme="dark".
+
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+
+    string IsActive(string controller, string? action = null)
+    {
+        if (string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase))
+        {
+            if (action == null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase))
+            {
+                return "active";
+            }
+        }
+        return "";
+    }
 }
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="@theme">
@@ -155,31 +170,31 @@
                 <nav class="mt-2">
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a asp-controller="Home" asp-action="Index" class="nav-link">
+                            <a asp-controller="Home" asp-action="Index" class="nav-link @IsActive("Home")">
                                 <i class="nav-icon bi bi-speedometer"></i>
                                 <p>Home</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a asp-controller="Catalog" asp-action="Index" class="nav-link">
+                            <a asp-controller="Catalog" asp-action="Index" class="nav-link @IsActive("Catalog")">
                                 <i class="nav-icon bi bi-database"></i>
                                 <p>Catálogo</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a asp-controller="Domains" asp-action="Index" class="nav-link">
+                            <a asp-controller="Domains" asp-action="Index" class="nav-link @IsActive("Domains")">
                                 <i class="nav-icon bi bi-globe"></i>
                                 <p>Domínios</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a asp-controller="SourceSystems" asp-action="Index" class="nav-link">
+                            <a asp-controller="SourceSystems" asp-action="Index" class="nav-link @IsActive("SourceSystems")">
                                 <i class="nav-icon bi bi-server"></i>
                                 <p>Sistemas de Origem</p>
                             </a>
                         </li>
                          <li class="nav-item">
-                            <a asp-controller="Audit" asp-action="Index" class="nav-link">
+                            <a asp-controller="Audit" asp-action="Index" class="nav-link @IsActive("Audit")">
                                 <i class="nav-icon bi bi-journal-text"></i>
                                 <p>Auditoria</p>
                             </a>
@@ -188,13 +203,13 @@
                         {
                             <li class="nav-header">ADMINISTRAÇÃO</li>
                             <li class="nav-item">
-                                <a asp-controller="Users" asp-action="Index" class="nav-link">
+                                <a asp-controller="Users" asp-action="Index" class="nav-link @IsActive("Users")">
                                     <i class="nav-icon bi bi-people"></i>
                                     <p>Utilizadores</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a asp-controller="Settings" asp-action="Index" class="nav-link">
+                                <a asp-controller="Settings" asp-action="Index" class="nav-link @IsActive("Settings")">
                                     <i class="nav-icon bi bi-gear"></i>
                                     <p>Configurações</p>
                                 </a>
