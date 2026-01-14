@@ -513,6 +513,12 @@ namespace CatalogoBCV.Controllers
 
             if (table == null) return NotFound();
 
+            // Fetch Audit Logs for this table
+            ViewBag.AuditLogs = await _context.AuditLogs
+                .Where(a => a.EntityType == "Table" && a.EntityId == id.ToString())
+                .OrderByDescending(a => a.Timestamp)
+                .ToListAsync();
+
             return View(table);
         }
 

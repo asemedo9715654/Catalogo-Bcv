@@ -236,55 +236,54 @@
                                 <div class="p-4">
                                     <h4 class="mb-4">Workflow de Aprovação</h4>
                                     
-                                    <div class="position-relative m-4" style="height: 60px;">
-                                        <div class="progress" style="height: 4px; position: absolute; top: 15px; width: 100%;">
-                                            @{
-                                                var progressWidth = "0%";
-                                                var step1Class = "btn-secondary";
-                                                var step2Class = "btn-secondary";
-                                                var step3Class = "btn-secondary";
-                                                
-                                                if (Model.Status == CatalogoBCV.Models.TableStatus.Rascunho)
-                                                {
-                                                    progressWidth = "0%";
-                                                    step1Class = "btn-warning";
-                                                }
-                                                else if (Model.Status == CatalogoBCV.Models.TableStatus.EmValidacao)
-                                                {
-                                                    progressWidth = "50%";
-                                                    step1Class = "btn-success";
-                                                    step2Class = "btn-info";
-                                                }
-                                                else if (Model.Status == CatalogoBCV.Models.TableStatus.Aprovado)
-                                                {
-                                                    progressWidth = "100%";
-                                                    step1Class = "btn-success";
-                                                    step2Class = "btn-success";
-                                                    step3Class = "btn-success";
-                                                }
-                                                else
-                                                {
-                                                    // Obsolete/Deprecated logic
-                                                    progressWidth = "0%";
-                                                    step1Class = "btn-secondary";
-                                                }
+                                    <div class="position-relative mx-5 my-5" style="height: 60px;">
+                                        @{
+                                            int GetStepOrder(CatalogoBCV.Models.TableStatus s) => s switch {
+                                                CatalogoBCV.Models.TableStatus.Rascunho => 1,
+                                                CatalogoBCV.Models.TableStatus.EmValidacao => 2,
+                                                CatalogoBCV.Models.TableStatus.Aprovado => 3,
+                                                _ => 0
+                                            };
+
+                                            int currentStep = GetStepOrder(Model.Status);
+                                            
+                                            string GetStepClass(int step) {
+                                                if (currentStep > step) return "btn-success";
+                                                if (currentStep == step) return "btn-primary";
+                                                return "btn-secondary bg-opacity-25";
                                             }
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: @progressWidth;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+
+                                            string progressWidth = currentStep switch {
+                                                1 => "0%",
+                                                2 => "50%",
+                                                3 => "100%",
+                                                _ => "0%"
+                                            };
+                                        }
+
+                                        <div class="progress" style="height: 4px; position: absolute; top: 15px; width: 100%; z-index: 0;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: @progressWidth;" aria-valuenow="@progressWidth.Replace("%","")" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                         
-                                        <div class="position-absolute top-0 start-0 translate-middle" style="left: 0% !important;">
-                                            <button type="button" class="btn btn-sm @step1Class rounded-pill" style="width: 2.5rem; height:2.5rem; padding: 0;">1</button>
-                                            <div class="text-center mt-1" style="width: 100px; margin-left: -35px;"><small class="fw-bold">Rascunho</small></div>
+                                        <div class="position-absolute top-0 start-0 translate-middle text-center" style="z-index: 1;">
+                                            <button type="button" class="btn @GetStepClass(1) rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="width: 2.5rem; height:2.5rem; border: 3px solid #fff;">
+                                                @if(currentStep > 1) { <i class="bi bi-check-lg"></i> } else { <strong>1</strong> }
+                                            </button>
+                                            <div class="mt-2 small fw-bold @(currentStep >= 1 ? "text-dark" : "text-muted")">Rascunho</div>
                                         </div>
                                         
-                                        <div class="position-absolute top-0 start-50 translate-middle">
-                                            <button type="button" class="btn btn-sm @step2Class rounded-pill" style="width: 2.5rem; height:2.5rem; padding: 0;">2</button>
-                                            <div class="text-center mt-1" style="width: 120px; margin-left: -45px;"><small class="fw-bold">Em Validação</small></div>
+                                        <div class="position-absolute top-0 start-50 translate-middle text-center" style="z-index: 1;">
+                                            <button type="button" class="btn @GetStepClass(2) rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="width: 2.5rem; height:2.5rem; border: 3px solid #fff;">
+                                                @if(currentStep > 2) { <i class="bi bi-check-lg"></i> } else { <strong>2</strong> }
+                                            </button>
+                                            <div class="mt-2 small fw-bold @(currentStep >= 2 ? "text-dark" : "text-muted")">Em Validação</div>
                                         </div>
                                         
-                                        <div class="position-absolute top-0 start-100 translate-middle" style="left: 100% !important;">
-                                            <button type="button" class="btn btn-sm @step3Class rounded-pill" style="width: 2.5rem; height:2.5rem; padding: 0;">3</button>
-                                            <div class="text-center mt-1" style="width: 100px; margin-left: -35px;"><small class="fw-bold">Aprovado</small></div>
+                                        <div class="position-absolute top-0 start-100 translate-middle text-center" style="z-index: 1;">
+                                            <button type="button" class="btn @GetStepClass(3) rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="width: 2.5rem; height:2.5rem; border: 3px solid #fff;">
+                                                @if(currentStep > 3) { <i class="bi bi-check-lg"></i> } else { <strong>3</strong> }
+                                            </button>
+                                            <div class="mt-2 small fw-bold @(currentStep >= 3 ? "text-dark" : "text-muted")">Aprovado</div>
                                         </div>
                                     </div>
                                     
@@ -297,13 +296,67 @@
                                     }
                                     
                                     <div class="mt-5 pt-3 border-top">
-                                        <h5>Histórico de Aprovação</h5>
-                                        <div class="timeline mt-3">
-                                            <!-- Placeholder for future audit log integration -->
-                                            <div class="text-muted fst-italic">
-                                                <i class="bi bi-info-circle me-1"></i> O histórico detalhado de mudanças de status será exibido aqui.
+                                        <h5 class="mb-4">Histórico de Aprovação</h5>
+                                        
+                                        @if (ViewBag.AuditLogs is IEnumerable<CatalogoBCV.Models.AuditLog> logs && logs.Any())
+                                        {
+                                            <div class="position-relative ms-2">
+                                                <div class="position-absolute top-0 bottom-0 start-0 border-start border-2" style="left: 5px;"></div>
+                                                
+                                                @foreach (var log in logs)
+                                                {
+                                                    <div class="position-relative mb-4 ps-4">
+                                                        <div class="position-absolute top-0 start-0 translate-middle-x bg-white border border-2 border-primary rounded-circle" style="width: 12px; height: 12px; margin-top: 6px;"></div>
+                                                        
+                                                        <div class="card shadow-sm border-0 bg-light">
+                                                            <div class="card-body p-3">
+                                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                    <div>
+                                                                        <strong class="text-primary">@log.Username</strong>
+                                                                        <span class="text-muted small ms-2"><i class="bi bi-clock me-1"></i>@log.Timestamp.ToString("g")</span>
+                                                                    </div>
+                                                                    <span class="badge bg-white text-dark border">@log.Action</span>
+                                                                </div>
+                                                                
+                                                                <div class="text-secondary small">
+                                                                    @if (log.Action == "UpdateStatus")
+                                                                    {
+                                                                        <div>
+                                                                            Alterou o status de 
+                                                                            <span class="badge bg-secondary">@log.OldValue</span> 
+                                                                            para 
+                                                                            <span class="badge bg-success">@log.NewValue</span>
+                                                                        </div>
+                                                                    }
+                                                                    else if (!string.IsNullOrEmpty(log.OldValue) && !string.IsNullOrEmpty(log.NewValue))
+                                                                    {
+                                                                        <div>
+                                                                            Valor anterior: <span class="text-danger text-decoration-line-through">@log.OldValue</span>
+                                                                            <br/>
+                                                                            Novo valor: <span class="text-success fw-bold">@log.NewValue</span>
+                                                                        </div>
+                                                                    }
+                                                                    else if (!string.IsNullOrEmpty(log.NewValue))
+                                                                    {
+                                                                        <div>@log.NewValue</div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="text-muted fst-italic">Ação registrada sem detalhes adicionais.</span>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
-                                        </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert alert-light border text-center text-muted">
+                                                <i class="bi bi-info-circle me-2"></i> Nenhum histórico de alterações encontrado para esta tabela.
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
