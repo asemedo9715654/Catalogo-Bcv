@@ -3,6 +3,7 @@ using CatalogoBCV.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CatalogoBCV.Controllers
 {
@@ -18,11 +19,15 @@ namespace CatalogoBCV.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Users.ToListAsync());
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .ToListAsync();
+            return View(users);
         }
 
         public IActionResult Create()
         {
+            ViewBag.Roles = new SelectList(_context.Roles.OrderBy(r => r.Name), "Id", "Name");
             return View();
         }
 
@@ -48,6 +53,7 @@ namespace CatalogoBCV.Controllers
                 TempData["Success"] = "Utilizador criado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Roles = new SelectList(_context.Roles.OrderBy(r => r.Name), "Id", "Name");
             return View(user);
         }
     }

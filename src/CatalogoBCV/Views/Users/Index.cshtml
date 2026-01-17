@@ -56,9 +56,9 @@
                                                 </div>
                                             </td>
                                             <td class="align-middle">
-                                                <span class="badge rounded-pill bg-@(item.Role == CatalogoBCV.Models.UserRole.Admin ? "danger" : "primary") bg-opacity-75">
-                                                    <i class="bi @(item.Role == CatalogoBCV.Models.UserRole.Admin ? "bi-shield-fill" : "bi-person-badge") me-1"></i>
-                                                    @item.Role
+                                                <span class="badge rounded-pill bg-@((item.Role != null && item.Role.Name == "Admin") ? "danger" : "primary") bg-opacity-75">
+                                                    <i class="bi @((item.Role != null && item.Role.Name == "Admin") ? "bi-shield-fill" : "bi-person-badge") me-1"></i>
+                                                    @(item.Role?.Name ?? "N/D")
                                                 </span>
                                             </td>
                                             <td class="align-middle text-center">

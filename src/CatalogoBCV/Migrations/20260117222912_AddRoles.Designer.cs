@@ -4,6 +4,7 @@ using CatalogoBCV.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CatalogoBCV.Migrations
 {
     [DbContext(typeof(CatalogContext))]
-    partial class CatalogContextModelSnapshot : ModelSnapshot
+    [Migration("20260117222912_AddRoles")]
+    partial class AddRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,19 +224,19 @@ namespace CatalogoBCV.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = -1,
                             Description = "Administrador do sistema",
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = -2,
                             Description = "Pode editar conteúdos",
                             Name = "Editor"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = -3,
                             Description = "Apenas leitura",
                             Name = "Reader"
                         });

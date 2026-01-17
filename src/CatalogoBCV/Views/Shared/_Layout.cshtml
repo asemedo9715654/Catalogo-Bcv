@@ -209,6 +209,12 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a asp-controller="Roles" asp-action="Index" class="nav-link @IsActive("Roles")">
+                                    <i class="nav-icon bi bi-shield-lock"></i>
+                                    <p>Roles</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a asp-controller="Settings" asp-action="Index" class="nav-link @IsActive("Settings")">
                                     <i class="nav-icon bi bi-gear"></i>
                                     <p>Configurações</p>

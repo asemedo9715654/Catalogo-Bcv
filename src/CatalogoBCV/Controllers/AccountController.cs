@@ -25,7 +25,9 @@ namespace CatalogoBCV.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Username == username);
             
             bool isValid = false;
             string role = "Reader";
@@ -36,7 +38,7 @@ namespace CatalogoBCV.Controllers
                 if (user.PasswordHash == password) 
                 {
                     isValid = true;
-                    role = user.Role.ToString();
+                    role = user.Role?.Name ?? "Reader";
                 }
             }
             else if (username == "admin" && password == "admin")

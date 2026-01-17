@@ -1,0 +1,124 @@
+@model IEnumerable<CatalogoBCV.Models.Role>
+
+@{
+    ViewData["Title"] = "Gestão de Roles";
+}
+
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Gestão de Roles</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@{
+    var userCounts = ViewBag.UserCounts as IDictionary<int, int> ?? new Dictionary<int, int>();
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="info-box">
+                    <span class="info-box-icon bg-primary elevation-1"><i class="bi bi-shield-lock"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Roles Definidos</span>
+                        <span class="info-box-number">
+                            @Model.Count()
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-list-check me-2"></i>
+                    Lista de Roles
+                </h3>
+                <div class="card-tools">
+                    <a asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i> Novo Role
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th class="text-center" style="width: 150px">Utilizadores</th>
+                                <th class="text-end" style="width: 150px">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light rounded p-2 me-3 text-primary">
+                                                    <i class="bi bi-shield-lock fs-4"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold">@item.Name</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.Description))
+                                            {
+                                                <span class="text-muted">@item.Description</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fst-italic text-black-50">Sem descrição</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @{
+                                                int count = 0;
+                                                userCounts.TryGetValue(item.Id, out count);
+                                            }
+                                            @count
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group btn-group-sm">
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger" title="Remover">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="bi bi-shield-slash display-6 d-block mb-2"></i>
+                                        Nenhum role definido.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

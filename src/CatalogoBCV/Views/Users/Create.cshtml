@@ -54,11 +54,11 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label asp-for="Role" class="form-label">
+                                <label asp-for="RoleId" class="form-label">
                                     <i class="bi bi-shield-lock me-1"></i> Função
                                 </label>
-                                <select asp-for="Role" asp-items="Html.GetEnumSelectList<UserRole>()" class="form-select"></select>
-                                <span asp-validation-for="Role" class="text-danger small"></span>
+                                <select asp-for="RoleId" asp-items="ViewBag.Roles" class="form-select"></select>
+                                <span asp-validation-for="RoleId" class="text-danger small"></span>
                             </div>
                             
                             <div class="mb-3">
