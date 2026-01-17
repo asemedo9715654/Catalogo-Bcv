@@ -67,6 +67,9 @@
     ViewData["Title"] = "Detalhes da Tabela";
 }
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+
 @section ContentHeader {
     <div class="app-content-header">
         <div class="container-fluid">
@@ -369,7 +372,7 @@
                                     </div>
                                     <div class="clearfix"></div>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped mb-0">
+                                    <table id="columnsTable" class="table table-bordered table-striped mb-0">
                                         <thead>
                                             <tr>
                                                 <th>Nome</th>
@@ -721,21 +724,37 @@
 }
 
 @section Scripts {
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
     <script>
         $(document).ready(function() {
-            $("#columnSearch").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("table tbody tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-                });
+            var columnsTable = $('#columnsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json"
+                },
+                "paging": true,
+                "lengthChange": false,
+                "pageLength": 10,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "dom": 'rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
-            
+
+            $('#columnSearch').on('keyup', function () {
+                columnsTable.search(this.value).draw();
+            });
+
             var graphTab = document.getElementById('custom-tabs-four-graph-tab');
             var graphFrame = document.getElementById('graphFrame');
             var frameLoaded = false;
 
-            if (graphTab) {
-                graphTab.addEventListener('shown.bs.tab', function (e) {
+            if (graphTab && graphFrame) {
+                graphTab.addEventListener('shown.bs.tab', function () {
                     if (!frameLoaded) {
                         graphFrame.src = graphFrame.getAttribute('data-src');
                         frameLoaded = true;
