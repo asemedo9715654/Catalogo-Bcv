@@ -23,6 +23,9 @@
     }
 }
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" />
+
 @section ContentHeader {
     <div class="content-header pb-1">
         <div class="container-fluid">
@@ -226,20 +229,34 @@
 </section>
 
 @section Scripts {
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
     <script>
         $(document).ready(function(){
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-              return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
 
-            // Client-side search
+            var tablesTable = $('#tablesTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.7/i18n/pt-PT.json"
+                },
+                "paging": true,
+                "lengthChange": false,
+                "pageLength": 10,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "dom": 'rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+            });
+
             $("#tableSearch").on("keyup", function() {
-                var value = $(this).val().toLowerCase();
-                $("#tablesTable tbody tr").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
+                tablesTable.search(this.value).draw();
             });
         });
     </script>
