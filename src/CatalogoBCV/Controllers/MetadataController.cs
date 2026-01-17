@@ -31,7 +31,7 @@ namespace CatalogoBCV.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable,Owner,DataSteward,ConfidentialityLevel,AffectedReports,DependentDashboards,LoadFrequency,LastSuccessfulLoad,ValidationRules,SourceSystemId")] Table tableDto)
+        public async Task<IActionResult> EditTable(int id, [Bind("Id,Description,Alias,DomainId,Status,IsFactTable,Owner,DataCustodian,DataSteward,ConfidentialityLevel,AffectedReports,DependentDashboards,LoadFrequency,LastSuccessfulLoad,ValidationRules,SourceSystemId")] Table tableDto)
         {
             if (id != tableDto.Id) return NotFound();
 
@@ -59,6 +59,7 @@ namespace CatalogoBCV.Controllers
 
             // New fields
             table.Owner = tableDto.Owner;
+            table.DataCustodian = tableDto.DataCustodian;
             table.DataSteward = tableDto.DataSteward;
             table.ConfidentialityLevel = tableDto.ConfidentialityLevel;
             table.AffectedReports = tableDto.AffectedReports;

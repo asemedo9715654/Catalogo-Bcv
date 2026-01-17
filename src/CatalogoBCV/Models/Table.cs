@@ -43,6 +43,7 @@ namespace CatalogoBCV.Models
 
         // New properties
         public string? Owner { get; set; }
+        public string? DataCustodian { get; set; }
         public string? DataSteward { get; set; }
         public ConfidentialityLevel ConfidentialityLevel { get; set; } = ConfidentialityLevel.Interno;
         public string? AffectedReports { get; set; }

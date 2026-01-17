@@ -71,14 +71,21 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label asp-for="Owner" class="form-label">Owner da Tabela</label>
                                         <input asp-for="Owner" class="form-control" />
                                         <span asp-validation-for="Owner" class="text-danger"></span>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        <label asp-for="DataCustodian" class="form-label">Data Custodian</label>
+                                        <input asp-for="DataCustodian" class="form-control" />
+                                        <span asp-validation-for="DataCustodian" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="form-group mb-3">
                                         <label asp-for="DataSteward" class="form-label">Data Steward</label>
                                         <input asp-for="DataSteward" class="form-control" />
