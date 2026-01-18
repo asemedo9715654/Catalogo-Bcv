@@ -15,7 +15,7 @@ using Table = CatalogoBCV.Models.Table; // Explicitly use the model Table
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "CanViewCatalog")]
     public class CatalogController : Controller
     {
         private readonly CatalogContext _context;

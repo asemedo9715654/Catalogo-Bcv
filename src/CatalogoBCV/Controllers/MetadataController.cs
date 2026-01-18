@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "CanEditCatalog")]
     public class MetadataController : Controller
     {
         private readonly CatalogContext _context;

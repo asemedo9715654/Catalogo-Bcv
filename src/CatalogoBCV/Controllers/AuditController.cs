@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "CanViewAudit")]
     public class AuditController : Controller
     {
         private readonly CatalogContext _context;

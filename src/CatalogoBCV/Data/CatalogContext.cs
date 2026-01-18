@@ -9,6 +9,8 @@ namespace CatalogoBCV.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<CatalogDatabase> CatalogDatabases { get; set; }
         public DbSet<Table> Tables { get; set; }
         public DbSet<Column> Columns { get; set; }
@@ -31,10 +33,44 @@ namespace CatalogoBCV.Data
                 .WithMany()
                 .HasForeignKey(u => u.RoleId);
 
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId);
+
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Admin", Description = "Administrador do sistema" },
                 new Role { Id = 2, Name = "Editor", Description = "Pode editar conteúdos" },
                 new Role { Id = 3, Name = "Reader", Description = "Apenas leitura" }
+            );
+
+            modelBuilder.Entity<Permission>().HasData(
+                new Permission { Id = 1, Name = "CanViewCatalog", Description = "Pode ver o catálogo" },
+                new Permission { Id = 2, Name = "CanEditCatalog", Description = "Pode editar o catálogo" },
+                new Permission { Id = 3, Name = "CanViewAudit", Description = "Pode ver logs de auditoria" },
+                new Permission { Id = 4, Name = "CanManageUsers", Description = "Pode gerir utilizadores" },
+                new Permission { Id = 5, Name = "CanManageRoles", Description = "Pode gerir roles" },
+                new Permission { Id = 6, Name = "CanManageSettings", Description = "Pode gerir configurações" }
+            );
+
+            modelBuilder.Entity<RolePermission>().HasData(
+                new RolePermission { RoleId = 1, PermissionId = 1 },
+                new RolePermission { RoleId = 1, PermissionId = 2 },
+                new RolePermission { RoleId = 1, PermissionId = 3 },
+                new RolePermission { RoleId = 1, PermissionId = 4 },
+                new RolePermission { RoleId = 1, PermissionId = 5 },
+                new RolePermission { RoleId = 1, PermissionId = 6 },
+                new RolePermission { RoleId = 2, PermissionId = 1 },
+                new RolePermission { RoleId = 2, PermissionId = 2 },
+                new RolePermission { RoleId = 3, PermissionId = 1 }
             );
 
             modelBuilder.Entity<CatalogDatabase>().HasIndex(d => new { d.Server, d.DatabaseName }).IsUnique();

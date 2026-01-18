@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "CanViewCatalog")]
     public class DomainsController : Controller
     {
         private readonly CatalogContext _context;
@@ -42,6 +42,7 @@ namespace CatalogoBCV.Controllers
         }
 
         // GET: Domains/Create
+        [Authorize(Policy = "CanEditCatalog")]
         public IActionResult Create()
         {
             return View();
@@ -50,6 +51,7 @@ namespace CatalogoBCV.Controllers
         // POST: Domains/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanEditCatalog")]
         public async Task<IActionResult> Create([Bind("Id,Name,Description")] Domain domain)
         {
             if (ModelState.IsValid)
@@ -63,6 +65,7 @@ namespace CatalogoBCV.Controllers
         }
 
         // GET: Domains/Edit/5
+        [Authorize(Policy = "CanEditCatalog")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -81,6 +84,7 @@ namespace CatalogoBCV.Controllers
         // POST: Domains/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanEditCatalog")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Domain domain)
         {
             if (id != domain.Id)
@@ -113,6 +117,7 @@ namespace CatalogoBCV.Controllers
         }
 
         // GET: Domains/Delete/5
+        [Authorize(Policy = "CanEditCatalog")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -133,6 +138,7 @@ namespace CatalogoBCV.Controllers
         // POST: Domains/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanEditCatalog")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var domain = await _context.Domains.FindAsync(id);

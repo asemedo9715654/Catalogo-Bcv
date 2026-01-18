@@ -34,7 +34,6 @@ namespace CatalogoBCV.Controllers
 
             if (user != null)
             {
-                // TODO: Usar hash real em produção
                 if (user.PasswordHash == password) 
                 {
                     isValid = true;
@@ -53,11 +52,25 @@ namespace CatalogoBCV.Controllers
 
             if (isValid)
             {
-                var claims = new List<Claim>
+                var claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.Name, username));
+                claims.Add(new Claim(ClaimTypes.Role, role));
+
+                var roleEntity = await _context.Roles
+                    .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                    .FirstOrDefaultAsync(r => r.Name == role);
+
+                if (roleEntity != null)
                 {
-                    new Claim(ClaimTypes.Name, username),
-                    new Claim(ClaimTypes.Role, role)
-                };
+                    foreach (var rolePermission in roleEntity.RolePermissions)
+                    {
+                        if (rolePermission.Permission != null)
+                        {
+                            claims.Add(new Claim("permission", rolePermission.Permission.Name));
+                        }
+                    }
+                }
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

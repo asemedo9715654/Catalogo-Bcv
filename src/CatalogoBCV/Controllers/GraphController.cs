@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "CanViewCatalog")]
     public class GraphController : Controller
     {
         private readonly CatalogContext _context;

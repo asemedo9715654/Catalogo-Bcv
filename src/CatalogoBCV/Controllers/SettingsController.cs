@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "CanManageSettings")]
     public class SettingsController : Controller
     {
         private readonly CatalogContext _context;

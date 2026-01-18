@@ -1,4 +1,6 @@
+@using Microsoft.AspNetCore.Authorization
 @inject CatalogoBCV.Services.ISettingsService SettingsService
+@inject IAuthorizationService AuthorizationService
 @{
     var appTitle = await SettingsService.GetSettingAsync("AppTitle", "CatalogoBCV");
     var theme = await SettingsService.GetSettingAsync("Theme", "light");
@@ -175,51 +177,74 @@
                                 <p>Home</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a asp-controller="Catalog" asp-action="Index" class="nav-link @IsActive("Catalog")">
-                                <i class="nav-icon bi bi-database"></i>
-                                <p>Catálogo</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Domains" asp-action="Index" class="nav-link @IsActive("Domains")">
-                                <i class="nav-icon bi bi-globe"></i>
-                                <p>Domínios</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="SourceSystems" asp-action="Index" class="nav-link @IsActive("SourceSystems")">
-                                <i class="nav-icon bi bi-server"></i>
-                                <p>Sistemas de Origem</p>
-                            </a>
-                        </li>
-                         <li class="nav-item">
-                            <a asp-controller="Audit" asp-action="Index" class="nav-link @IsActive("Audit")">
-                                <i class="nav-icon bi bi-journal-text"></i>
-                                <p>Auditoria</p>
-                            </a>
-                        </li>
-                        @if (User.IsInRole("Admin"))
+                        @if ((await AuthorizationService.AuthorizeAsync(User, "CanViewCatalog")).Succeeded)
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Catalog" asp-action="Index" class="nav-link @IsActive("Catalog")">
+                                    <i class="nav-icon bi bi-database"></i>
+                                    <p>Catálogo</p>
+                                </a>
+                            </li>
+                        }
+                        @if ((await AuthorizationService.AuthorizeAsync(User, "CanViewCatalog")).Succeeded)
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Domains" asp-action="Index" class="nav-link @IsActive("Domains")">
+                                    <i class="nav-icon bi bi-globe"></i>
+                                    <p>Domínios</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="SourceSystems" asp-action="Index" class="nav-link @IsActive("SourceSystems")">
+                                    <i class="nav-icon bi bi-server"></i>
+                                    <p>Sistemas de Origem</p>
+                                </a>
+                            </li>
+                        }
+                        @if ((await AuthorizationService.AuthorizeAsync(User, "CanViewAudit")).Succeeded)
+                        {
+                            <li class="nav-item">
+                                <a asp-controller="Audit" asp-action="Index" class="nav-link @IsActive("Audit")">
+                                    <i class="nav-icon bi bi-journal-text"></i>
+                                    <p>Auditoria</p>
+                                </a>
+                            </li>
+                        }
+                        @{
+                            var canManageUsers = (await AuthorizationService.AuthorizeAsync(User, "CanManageUsers")).Succeeded;
+                            var canManageRoles = (await AuthorizationService.AuthorizeAsync(User, "CanManageRoles")).Succeeded;
+                            var canManageSettings = (await AuthorizationService.AuthorizeAsync(User, "CanManageSettings")).Succeeded;
+                        }
+                        @if (canManageUsers || canManageRoles || canManageSettings)
                         {
                             <li class="nav-header">ADMINISTRAÇÃO</li>
-                            <li class="nav-item">
-                                <a asp-controller="Users" asp-action="Index" class="nav-link @IsActive("Users")">
-                                    <i class="nav-icon bi bi-people"></i>
-                                    <p>Utilizadores</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a asp-controller="Roles" asp-action="Index" class="nav-link @IsActive("Roles")">
-                                    <i class="nav-icon bi bi-shield-lock"></i>
-                                    <p>Roles</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a asp-controller="Settings" asp-action="Index" class="nav-link @IsActive("Settings")">
-                                    <i class="nav-icon bi bi-gear"></i>
-                                    <p>Configurações</p>
-                                </a>
-                            </li>
+                            @if (canManageUsers)
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Users" asp-action="Index" class="nav-link @IsActive("Users")">
+                                        <i class="nav-icon bi bi-people"></i>
+                                        <p>Utilizadores</p>
+                                    </a>
+                                </li>
+                            }
+                            @if (canManageRoles)
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Roles" asp-action="Index" class="nav-link @IsActive("Roles")">
+                                        <i class="nav-icon bi bi-shield-lock"></i>
+                                        <p>Roles</p>
+                                    </a>
+                                </li>
+                            }
+                            @if (canManageSettings)
+                            {
+                                <li class="nav-item">
+                                    <a asp-controller="Settings" asp-action="Index" class="nav-link @IsActive("Settings")">
+                                        <i class="nav-icon bi bi-gear"></i>
+                                        <p>Configurações</p>
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
                 </nav>

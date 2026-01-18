@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 using CatalogoBCV.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,22 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanViewCatalog", policy =>
+        policy.RequireClaim("permission", "CanViewCatalog"));
+    options.AddPolicy("CanEditCatalog", policy =>
+        policy.RequireClaim("permission", "CanEditCatalog"));
+    options.AddPolicy("CanViewAudit", policy =>
+        policy.RequireClaim("permission", "CanViewAudit"));
+    options.AddPolicy("CanManageUsers", policy =>
+        policy.RequireClaim("permission", "CanManageUsers"));
+    options.AddPolicy("CanManageRoles", policy =>
+        policy.RequireClaim("permission", "CanManageRoles"));
+    options.AddPolicy("CanManageSettings", policy =>
+        policy.RequireClaim("permission", "CanManageSettings"));
+});
 
 builder.Services.AddScoped<IMetadataService, SqlServerMetadataService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();

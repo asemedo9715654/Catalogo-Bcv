@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CatalogoBCV.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "CanManageUsers")]
     public class UsersController : Controller
     {
         private readonly CatalogContext _context;
