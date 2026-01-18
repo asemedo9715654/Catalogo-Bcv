@@ -82,9 +82,12 @@
                     Lista de Bases de Dados
                 </h3>
                 <div class="card-tools">
-                    <a asp-action="Create" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus-circle me-1"></i> Nova Conexão
-                    </a>
+                    @if (User.HasClaim("permission", "CanCreateCatalog"))
+                    {
+                        <a asp-action="Create" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Nova Conexão
+                        </a>
+                    }
                 </div>
             </div>
             <div class="card-body p-0">
