@@ -111,5 +111,11 @@ namespace CatalogoBCV.Controllers
             TempData["Success"] = "Sessão terminada com sucesso.";
             return RedirectToAction("Login");
         }
+
+        public IActionResult AccessDenied(string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
     }
 }
