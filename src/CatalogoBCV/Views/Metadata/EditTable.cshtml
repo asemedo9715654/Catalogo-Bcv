@@ -23,143 +23,191 @@
     </div>
 }
 
-<section class="content">
+<div class="app-content">
     <div class="container-fluid">
-        <div class="row justify-content-center">
+        <div class="row">
             <div class="col-12">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">@Model.Schema.@Model.Name <small>(@Model.CatalogDatabase.DatabaseName)</small></h3>
+                <div class="card card-outline card-primary">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="card-title mb-0">
+                                <i class="bi bi-table me-2"></i>@Model.Schema.@Model.Name
+                            </h3>
+                            <small class="text-muted">@Model.CatalogDatabase.DatabaseName</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary">@Model.Status</span>
+                            <span class="badge bg-info text-dark">@Model.ConfidentialityLevel</span>
+                        </div>
                     </div>
                     <form asp-action="EditTable">
                         <div class="card-body">
                             <input type="hidden" asp-for="Id" />
-                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="Alias" class="form-label"></label>
-                                <input asp-for="Alias" class="form-control" />
-                                <span asp-validation-for="Alias" class="text-danger"></span>
-                            </div>
-                            
-                            <div class="form-group mb-3">
-                                <label asp-for="DomainId" class="control-label">Domínio</label>
-                                <select asp-for="DomainId" class="form-control" asp-items="ViewBag.DomainId">
-                                    <option value="">-- Selecione um Domínio --</option>
-                                </select>
-                                <span asp-validation-for="DomainId" class="text-danger"></span>
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Alias" class="form-label">
+                                            <i class="bi bi-tag me-1"></i> Alias
+                                        </label>
+                                        <input asp-for="Alias" class="form-control" placeholder="Nome amigável da tabela" />
+                                        <span asp-validation-for="Alias" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="DomainId" class="form-label">
+                                            <i class="bi bi-globe me-1"></i> Domínio
+                                        </label>
+                                        <select asp-for="DomainId" class="form-select" asp-items="ViewBag.DomainId">
+                                            <option value="">-- Selecione um Domínio --</option>
+                                        </select>
+                                        <span asp-validation-for="DomainId" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label asp-for="SourceSystemId" class="form-label">
+                                            <i class="bi bi-server me-1"></i> Sistema de Origem
+                                        </label>
+                                        <select asp-for="SourceSystemId" class="form-select" asp-items="ViewBag.SourceSystemId">
+                                            <option value="">-- Selecione o Sistema de Origem --</option>
+                                        </select>
+                                        <span asp-validation-for="SourceSystemId" class="text-danger small"></span>
+                                        <small class="form-text text-muted d-block mt-1">Para dimensões geradas automaticamente, selecione o sistema correspondente (ex: "Gerado Internamente").</small>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label asp-for="SourceSystemId" class="control-label">Sistema de Origem</label>
-                                <select asp-for="SourceSystemId" class="form-control" asp-items="ViewBag.SourceSystemId">
-                                    <option value="">-- Selecione o Sistema de Origem --</option>
-                                </select>
-                                <span asp-validation-for="SourceSystemId" class="text-danger"></span>
-                                <small class="form-text text-muted">Para dimensões geradas automaticamente, selecione o sistema correspondente (ex: "Gerado Internamente").</small>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label asp-for="Status" class="control-label">Status da Tabela</label>
-                                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<CatalogoBCV.Models.TableStatus>()"></select>
-                                <span asp-validation-for="Status" class="text-danger"></span>
-                            </div>
-
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" asp-for="IsFactTable" />
-                                <label class="form-check-label" asp-for="IsFactTable">Tabela de Factos</label>
-                            </div>
-
-                            <div class="row">
+                            <div class="row g-3">
                                 <div class="col-md-4">
-                                    <div class="form-group mb-3">
+                                    <div class="mb-3">
+                                        <label asp-for="Status" class="form-label">
+                                            <i class="bi bi-flag me-1"></i> Status da Tabela
+                                        </label>
+                                        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<CatalogoBCV.Models.TableStatus>()"></select>
+                                        <span asp-validation-for="Status" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label asp-for="ConfidentialityLevel" class="form-label">
+                                            <i class="bi bi-shield-lock me-1"></i> Nível de Confidencialidade
+                                        </label>
+                                        <select asp-for="ConfidentialityLevel" class="form-select" asp-items="Html.GetEnumSelectList<CatalogoBCV.Models.ConfidentialityLevel>()"></select>
+                                        <span asp-validation-for="ConfidentialityLevel" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" asp-for="IsFactTable">
+                                        <label class="form-check-label" asp-for="IsFactTable">
+                                            Tabela de Factos
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-1">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
                                         <label asp-for="Owner" class="form-label">Owner da Tabela</label>
                                         <input asp-for="Owner" class="form-control" />
-                                        <span asp-validation-for="Owner" class="text-danger"></span>
+                                        <span asp-validation-for="Owner" class="text-danger small"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group mb-3">
+                                    <div class="mb-3">
                                         <label asp-for="DataCustodian" class="form-label">Data Custodian</label>
                                         <input asp-for="DataCustodian" class="form-control" />
-                                        <span asp-validation-for="DataCustodian" class="text-danger"></span>
+                                        <span asp-validation-for="DataCustodian" class="text-danger small"></span>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <div class="form-group mb-3">
+                                    <div class="mb-3">
                                         <label asp-for="DataSteward" class="form-label">Data Steward</label>
                                         <input asp-for="DataSteward" class="form-control" />
-                                        <span asp-validation-for="DataSteward" class="text-danger"></span>
+                                        <span asp-validation-for="DataSteward" class="text-danger small"></span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label asp-for="ConfidentialityLevel" class="control-label">Nível de Confidencialidade</label>
-                                <select asp-for="ConfidentialityLevel" class="form-control" asp-items="Html.GetEnumSelectList<CatalogoBCV.Models.ConfidentialityLevel>()"></select>
-                                <span asp-validation-for="ConfidentialityLevel" class="text-danger"></span>
-                            </div>
-
-                            <div class="card bg-light mb-3">
-                                <div class="card-header fw-bold">Impacto</div>
-                                <div class="card-body">
-                                    <div class="form-group mb-3">
-                                        <label asp-for="AffectedReports" class="form-label">Relatórios afetados</label>
-                                        <textarea asp-for="AffectedReports" class="form-control" rows="2"></textarea>
-                                        <span asp-validation-for="AffectedReports" class="text-danger"></span>
-                                    </div>
-                                    <div class="form-group mb-3">
-                                        <label asp-for="DependentDashboards" class="form-label">Dashboards dependentes</label>
-                                        <textarea asp-for="DependentDashboards" class="form-control" rows="2"></textarea>
-                                        <span asp-validation-for="DependentDashboards" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card bg-light mb-3">
-                                <div class="card-header fw-bold">Qualidade de Dados</div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label asp-for="LoadFrequency" class="form-label">Frequência de Carga</label>
-                                                <input asp-for="LoadFrequency" class="form-control" placeholder="Ex: Diária, Mensal" />
-                                                <span asp-validation-for="LoadFrequency" class="text-danger"></span>
-                                            </div>
+                            <div class="row g-3 mt-1">
+                                <div class="col-lg-6">
+                                    <div class="card bg-light border-0 h-100">
+                                        <div class="card-header fw-bold d-flex align-items-center">
+                                            <i class="bi bi-activity me-2"></i>
+                                            <span>Impacto</span>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group mb-3">
-                                                <label asp-for="LastSuccessfulLoad" class="form-label">Última Carga Bem-sucedida</label>
-                                                <input asp-for="LastSuccessfulLoad" class="form-control" type="datetime-local" />
-                                                <span asp-validation-for="LastSuccessfulLoad" class="text-danger"></span>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label asp-for="AffectedReports" class="form-label">Relatórios afetados</label>
+                                                <textarea asp-for="AffectedReports" class="form-control" rows="2"></textarea>
+                                                <span asp-validation-for="AffectedReports" class="text-danger small"></span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label asp-for="DependentDashboards" class="form-label">Dashboards dependentes</label>
+                                                <textarea asp-for="DependentDashboards" class="form-control" rows="2"></textarea>
+                                                <span asp-validation-for="DependentDashboards" class="text-danger small"></span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group mb-3">
-                                        <label asp-for="ValidationRules" class="form-label">Regras de Validação</label>
-                                        <textarea asp-for="ValidationRules" class="form-control" rows="3" placeholder="Descreva as regras de validação aplicadas a esta tabela..."></textarea>
-                                        <span asp-validation-for="ValidationRules" class="text-danger"></span>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="card bg-light border-0 h-100">
+                                        <div class="card-header fw-bold d-flex align-items-center">
+                                            <i class="bi bi-shield-check me-2"></i>
+                                            <span>Qualidade de Dados</span>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label asp-for="LoadFrequency" class="form-label">Frequência de Carga</label>
+                                                        <input asp-for="LoadFrequency" class="form-control" placeholder="Ex: Diária, Mensal" />
+                                                        <span asp-validation-for="LoadFrequency" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label asp-for="LastSuccessfulLoad" class="form-label">Última Carga Bem-sucedida</label>
+                                                        <input asp-for="LastSuccessfulLoad" class="form-control" type="datetime-local" />
+                                                        <span asp-validation-for="LastSuccessfulLoad" class="text-danger small"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label asp-for="ValidationRules" class="form-label">Regras de Validação</label>
+                                                <textarea asp-for="ValidationRules" class="form-control" rows="3" placeholder="Descreva as regras de validação aplicadas a esta tabela..."></textarea>
+                                                <span asp-validation-for="ValidationRules" class="text-danger small"></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label asp-for="Description" class="form-label"></label>
+                            <div class="mt-3">
+                                <label asp-for="Description" class="form-label">Descrição</label>
                                 <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                                <span asp-validation-for="Description" class="text-danger"></span>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
                             </div>
                         </div>
-                        
-                        <div class="card-footer">
-                            <a asp-controller="Catalog" asp-action="TableDetails" asp-route-id="@Model.Id" class="btn btn-secondary">Cancelar</a>
-                            <input type="submit" value="Guardar" class="btn btn-primary float-end" />
+
+                        <div class="card-footer bg-transparent">
+                            <a asp-controller="Catalog" asp-action="TableDetails" asp-route-id="@Model.Id" class="btn btn-default">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary float-end">
+                                <i class="bi bi-save me-1"></i> Guardar Alterações
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
