@@ -23,6 +23,8 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("permission", "CanViewCatalog"));
     options.AddPolicy("CanEditCatalog", policy =>
         policy.RequireClaim("permission", "CanEditCatalog"));
+    options.AddPolicy("CanCreateCatalog", policy =>
+        policy.RequireClaim("permission", "CanCreateCatalog"));
     options.AddPolicy("CanViewAudit", policy =>
         policy.RequireClaim("permission", "CanViewAudit"));
     options.AddPolicy("CanManageUsers", policy =>

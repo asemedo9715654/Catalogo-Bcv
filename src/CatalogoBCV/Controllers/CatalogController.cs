@@ -262,6 +262,7 @@ namespace CatalogoBCV.Controllers
             return File(stream, "application/pdf", $"Catalogo_{db.DatabaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
         }
 
+        [Authorize(Policy = "CanCreateCatalog")]
         public IActionResult Create()
         {
             return View();
@@ -269,6 +270,7 @@ namespace CatalogoBCV.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "CanCreateCatalog")]
         public async Task<IActionResult> Create(CatalogDatabase catalogDatabase)
         {
             if (!catalogDatabase.UseWindowsAuthentication)

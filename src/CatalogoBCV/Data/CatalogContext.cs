@@ -58,7 +58,8 @@ namespace CatalogoBCV.Data
                 new Permission { Id = 3, Name = "CanViewAudit", Description = "Pode ver logs de auditoria" },
                 new Permission { Id = 4, Name = "CanManageUsers", Description = "Pode gerir utilizadores" },
                 new Permission { Id = 5, Name = "CanManageRoles", Description = "Pode gerir roles" },
-                new Permission { Id = 6, Name = "CanManageSettings", Description = "Pode gerir configurações" }
+                new Permission { Id = 6, Name = "CanManageSettings", Description = "Pode gerir configurações" },
+                new Permission { Id = 7, Name = "CanCreateCatalog", Description = "Pode criar novas conexões de catálogo" }
             );
 
             modelBuilder.Entity<RolePermission>().HasData(
@@ -68,8 +69,10 @@ namespace CatalogoBCV.Data
                 new RolePermission { RoleId = 1, PermissionId = 4 },
                 new RolePermission { RoleId = 1, PermissionId = 5 },
                 new RolePermission { RoleId = 1, PermissionId = 6 },
+                new RolePermission { RoleId = 1, PermissionId = 7 },
                 new RolePermission { RoleId = 2, PermissionId = 1 },
                 new RolePermission { RoleId = 2, PermissionId = 2 },
+                new RolePermission { RoleId = 2, PermissionId = 7 },
                 new RolePermission { RoleId = 3, PermissionId = 1 }
             );
 
