@@ -1,11 +1,55 @@
 using CatalogoBCV.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace CatalogoBCV.Data
 {
     public class CatalogContext : DbContext
     {
-        public CatalogContext(DbContextOptions<CatalogContext> options) : base(options) { }
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public CatalogContext(DbContextOptions<CatalogContext> options, IHttpContextAccessor httpContextAccessor = null) : base(options) 
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public override int SaveChanges()
+        {
+            UpdateAuditFields();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            UpdateAuditFields();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void UpdateAuditFields()
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+            // Use "System" or empty string if context is missing (e.g. background tasks or migrations)
+            var currentUser = _httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? "System";
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTime.Now;
+                    entry.Entity.CreatedBy = currentUser;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.Now;
+                    entry.Entity.UpdatedBy = currentUser;
+
+                    // Ensure CreatedAt/CreatedBy are not modified during update
+                    entry.Property(x => x.CreatedAt).IsModified = false;
+                    entry.Property(x => x.CreatedBy).IsModified = false;
+                }
+            }
+        }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
