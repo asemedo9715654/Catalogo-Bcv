@@ -241,7 +241,7 @@
                                         <tr>
                                             <td><small>@db.Server</small></td>
                                             <td><a asp-controller="Catalog" asp-action="Details" asp-route-id="@db.Id">@db.DatabaseName</a></td>
-                                            <td><small>@db.LastUpdated?.ToString("g")</small></td>
+                                            <td><small>@db.UpdatedAt?.ToString("g")</small></td>
                                         </tr>
                                     }
                                 </tbody>

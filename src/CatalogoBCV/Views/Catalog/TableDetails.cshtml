@@ -523,7 +523,7 @@
                          <p class="text-muted">@(Model.IsFactTable ? "Sim" : "Não")</p>
                          <hr>
                          <strong><i class="bi bi-clock-history me-1"></i> Atualização da Base</strong>
-                         <p class="text-muted">@Model.CatalogDatabase?.LastUpdated?.ToString("g")</p>
+                         <p class="text-muted">@Model.CatalogDatabase?.UpdatedAt?.ToString("g")</p>
                     </div>
                  </div>
 
@@ -545,7 +545,7 @@
                                                         <i class="bi @GetCommentIcon(comment.Type) me-1"></i>
                                                         @GetCommentLabel(comment.Type)
                                                     </span>
-                                                    <span class="fw-bold text-primary small">@comment.Author</span>
+                                                    <span class="fw-bold text-primary small">@comment.CreatedBy</span>
                                                 </div>
                                                 <div class="d-flex align-items-center">
                                                     <small class="text-muted me-2" style="font-size: 0.7rem;">@comment.CreatedAt.ToString("g")</small>
@@ -684,7 +684,7 @@
                                                         <span class="badge @GetCommentTypeBadgeClass(comment.Type) me-1" style="font-size: 0.65rem;" title="@GetCommentLabel(comment.Type)">
                                                             <i class="bi @GetCommentIcon(comment.Type)"></i>
                                                         </span>
-                                                        <strong class="small text-primary">@comment.Author</strong>
+                                                        <strong class="small text-primary">@comment.CreatedBy</strong>
                                                     </div>
                                                     <small class="text-muted" style="font-size: 0.75em;">@comment.CreatedAt.ToString("dd/MM/yy HH:mm")</small>
                                                 </div>

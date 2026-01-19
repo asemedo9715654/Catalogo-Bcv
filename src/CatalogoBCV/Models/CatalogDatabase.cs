@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CatalogoBCV.Models
 {
-    public class CatalogDatabase
+    public class CatalogDatabase : BaseEntity
     {
         public int Id { get; set; }
         [Required]
@@ -16,10 +16,6 @@ namespace CatalogoBCV.Models
         
         public string? EncryptedPassword { get; set; }
         
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? LastUpdated { get; set; }
-        public string CreatedBy { get; set; } = string.Empty;
-
         public List<Table> Tables { get; set; } = new();
     }
 }

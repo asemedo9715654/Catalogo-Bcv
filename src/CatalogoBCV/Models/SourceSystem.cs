@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CatalogoBCV.Models
 {
-    public class SourceSystem
+    public class SourceSystem : BaseEntity
     {
         public int Id { get; set; }
 

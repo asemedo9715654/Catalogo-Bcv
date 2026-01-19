@@ -27,7 +27,7 @@ namespace CatalogoBCV.Models
         Restrito
     }
 
-    public class Table
+    public class Table : BaseEntity
     {
         public int Id { get; set; }
         public int CatalogDatabaseId { get; set; }

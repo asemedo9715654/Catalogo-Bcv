@@ -4,7 +4,7 @@
     ViewData["Title"] = "Detalhes da Base";
     var totalTables = Model.Tables.Count;
     var totalRows = Model.Tables.Sum(t => t.RowCount ?? 0);
-    var lastUpdated = Model.LastUpdated?.ToString("dd/MM/yyyy HH:mm") ?? "N/A";
+    var lastUpdated = Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A";
     var certifiedCount = Model.Tables.Count(t => t.Status == CatalogoBCV.Models.TableStatus.Aprovado);
 }
 

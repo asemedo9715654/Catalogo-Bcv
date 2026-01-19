@@ -1,6 +1,6 @@
 namespace CatalogoBCV.Models
 {
-    public class Column
+    public class Column : BaseEntity
     {
         public int Id { get; set; }
         public int TableId { get; set; }

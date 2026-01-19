@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CatalogoBCV.Models
 {
-    public class SystemSetting
+    public class SystemSetting : BaseEntity
     {
         [Key]
         public string Key { get; set; } = string.Empty;

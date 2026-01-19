@@ -54,7 +54,7 @@ public class HomeController : Controller
             .ToListAsync();
 
         var databasesStatus = await _context.CatalogDatabases
-            .OrderByDescending(d => d.LastUpdated)
+            .OrderByDescending(d => d.UpdatedAt)
             .ToListAsync();
 
         var recentActivities = await _context.AuditLogs

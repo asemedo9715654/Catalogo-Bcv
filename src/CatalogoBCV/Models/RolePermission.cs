@@ -1,6 +1,6 @@
 namespace CatalogoBCV.Models
 {
-    public class RolePermission
+    public class RolePermission : BaseEntity
     {
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;

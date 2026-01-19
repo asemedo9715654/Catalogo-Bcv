@@ -68,7 +68,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">Última Atualização</span>
                         <span class="info-box-number text-muted" style="font-size: 0.9rem;">
-                             @(Model.OrderByDescending(d => d.LastUpdated).FirstOrDefault()?.LastUpdated?.ToString("g") ?? "-")
+                             @(Model.OrderByDescending(d => d.UpdatedAt).FirstOrDefault()?.UpdatedAt?.ToString("g") ?? "-")
                         </span>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                                     </td>
                                     <td>
                                         <small class="d-block text-muted">Criado: @item.CreatedAt.ToString("d")</small>
-                                        <small class="d-block text-primary">Atualizado: @item.LastUpdated?.ToString("g")</small>
+                                        <small class="d-block text-primary">Atualizado: @item.UpdatedAt?.ToString("g")</small>
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm">

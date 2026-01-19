@@ -300,7 +300,7 @@ namespace CatalogoBCV.Controllers
                     var tables = await _metadataService.GetMetadataAsync(connectionString);
                     catalogDatabase.Tables = tables;
                     catalogDatabase.CreatedAt = DateTime.UtcNow;
-                    catalogDatabase.LastUpdated = DateTime.UtcNow;
+                    catalogDatabase.UpdatedAt = DateTime.UtcNow;
                     catalogDatabase.CreatedBy = User.Identity?.Name ?? "System";
 
                     _context.Add(catalogDatabase);
@@ -428,7 +428,7 @@ namespace CatalogoBCV.Controllers
 
                 if (hasSchemaChanges || hasStatsChanges)
                 {
-                    db.LastUpdated = DateTime.UtcNow;
+                    db.UpdatedAt = DateTime.UtcNow;
                     await _context.SaveChangesAsync();
                     
                     if (!hasSchemaChanges && hasStatsChanges)
@@ -537,7 +537,7 @@ namespace CatalogoBCV.Controllers
                 TableId = tableId,
                 Content = content,
                 Type = type,
-                Author = User.Identity?.Name ?? "System",
+                CreatedBy = User.Identity?.Name ?? "System",
                 CreatedAt = DateTime.Now
             };
 
@@ -556,7 +556,7 @@ namespace CatalogoBCV.Controllers
             if (string.IsNullOrWhiteSpace(content)) return RedirectToAction(nameof(TableDetails), new { id = comment.TableId });
 
             // Optional: Check if user is author or admin
-            // if (comment.Author != User.Identity?.Name && !User.IsInRole("Admin")) return Forbid();
+            // if (comment.CreatedBy != User.Identity?.Name && !User.IsInRole("Admin")) return Forbid();
 
             comment.Content = content;
             comment.Type = type;
@@ -584,7 +584,7 @@ namespace CatalogoBCV.Controllers
                 ColumnId = columnId,
                 Content = content,
                 Type = type,
-                Author = User.Identity?.Name ?? "System",
+                CreatedBy = User.Identity?.Name ?? "System",
                 CreatedAt = DateTime.Now
             };
 

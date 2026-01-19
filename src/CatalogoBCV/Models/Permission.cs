@@ -1,6 +1,6 @@
 namespace CatalogoBCV.Models
 {
-    public class Permission
+    public class Permission : BaseEntity
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
