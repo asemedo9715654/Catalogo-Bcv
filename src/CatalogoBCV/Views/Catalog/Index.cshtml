@@ -97,6 +97,7 @@
                             <tr>
                                 <th>Servidor / Base</th>
                                 <th class="text-center">Tabelas</th>
+                                <th style="width: 200px">Documentação</th>
                                 <th>Autenticação</th>
                                 <th>Datas</th>
                                 <th class="text-end" style="width: 150px">Ações</th>
@@ -120,6 +121,36 @@
                                         <span class="badge bg-secondary rounded-pill">
                                             @(item.Tables?.Count ?? 0)
                                         </span>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var totalTables = item.Tables?.Count ?? 0;
+                                            var documentedTables = item.Tables?.Count(t => !string.IsNullOrWhiteSpace(t.Description)) ?? 0;
+
+                                            var totalColumns = item.Tables?.Sum(t => t.Columns?.Count ?? 0) ?? 0;
+                                            var documentedColumns = item.Tables?.Sum(t => t.Columns?.Count(c => !string.IsNullOrWhiteSpace(c.Description)) ?? 0) ?? 0;
+
+                                            var totalItems = totalTables + totalColumns;
+                                            var documentedItems = documentedTables + documentedColumns;
+
+                                            var percentage = totalItems > 0 ? (double)documentedItems / totalItems * 100 : 0;
+                                            var percentageInt = (int)percentage;
+                                            
+                                            string progressClass = percentageInt switch {
+                                                >= 80 => "bg-success",
+                                                >= 50 => "bg-warning",
+                                                _ => "bg-danger"
+                                            };
+                                        }
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                <div class="progress-bar @progressClass" role="progressbar" style="width: @percentageInt%" aria-valuenow="@percentageInt" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <span class="small fw-bold">@percentageInt%</span>
+                                        </div>
+                                        <small class="text-muted d-block" style="font-size: 0.75rem">
+                                            @documentedItems de @totalItems itens
+                                        </small>
                                     </td>
                                     <td>
                                         <small class="d-block text-muted">

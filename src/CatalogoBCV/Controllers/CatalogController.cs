@@ -31,6 +31,7 @@ namespace CatalogoBCV.Controllers
         {
             var databases = await _context.CatalogDatabases
                 .Include(d => d.Tables)
+                .ThenInclude(t => t.Columns)
                 .ToListAsync();
             return View(databases);
         }
