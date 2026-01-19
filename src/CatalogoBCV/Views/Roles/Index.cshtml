@@ -55,6 +55,8 @@
                             <tr>
                                 <th>Nome</th>
                                 <th>Descrição</th>
+                                <th>Criado em</th>
+                                <th>Atualizado em</th>
                                 <th class="text-center" style="width: 150px">Utilizadores</th>
                                 <th class="text-end" style="width: 230px">Ações</th>
                             </tr>
@@ -85,6 +87,12 @@
                                                 <span class="fst-italic text-black-50">Sem descrição</span>
                                             }
                                         </td>
+                                        <td>
+                                            @item.CreatedAt.ToString("g")
+                                        </td>
+                                        <td>
+                                            @(item.UpdatedAt?.ToString("g") ?? "-")
+                                        </td>
                                         <td class="text-center">
                                             @{
                                                 int count = 0;
@@ -111,7 +119,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">
+                                    <td colspan="6" class="text-center py-4 text-muted">
                                         <i class="bi bi-shield-slash display-6 d-block mb-2"></i>
                                         Nenhum role definido.
                                     </td>
