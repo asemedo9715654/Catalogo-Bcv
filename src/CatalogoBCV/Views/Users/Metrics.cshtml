@@ -1,0 +1,163 @@
+@model CatalogoBCV.Models.ViewModels.UserMetricsViewModel
+@{
+    ViewData["Title"] = "Métricas de Utilizadores";
+}
+
+<div class="card card-primary card-outline card-outline-tabs">
+    <div class="card-header p-0 border-bottom-0">
+        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="custom-tabs-four-home-tab" data-bs-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Por Utilizador</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="custom-tabs-four-profile-tab" data-bs-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Histórico de Logins</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="custom-tabs-four-tabContent">
+            <div class="tab-pane fade show active" id="custom-tabs-four-home" role="tabpanel" aria-labelledby="custom-tabs-four-home-tab">
+                <div class="row">
+                    <div class="col-md-6">
+                         <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Tempo de Utilização (Horas Estimadas)</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="usageChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Total de Logins por Utilizador</h3>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="loginsUserChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="custom-tabs-four-profile" role="tabpanel" aria-labelledby="custom-tabs-four-profile-tab">
+                 <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Logins nos últimos 30 dias</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="dailyLoginsChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(function () {
+            // Data from Model
+            var usageLabels = @Html.Raw(Json.Serialize(Model.UserUsage.Select(u => u.Username)));
+            var usageData = @Html.Raw(Json.Serialize(Model.UserUsage.Select(u => u.TotalHours)));
+
+            var loginUserLabels = @Html.Raw(Json.Serialize(Model.UserLogins.Select(u => u.Username)));
+            var loginUserData = @Html.Raw(Json.Serialize(Model.UserLogins.Select(u => u.TotalLogins)));
+
+            var dailyLabels = @Html.Raw(Json.Serialize(Model.Last30DaysLogins.Select(u => u.Date.ToString("dd/MM"))));
+            var dailyData = @Html.Raw(Json.Serialize(Model.Last30DaysLogins.Select(u => u.Count)));
+
+            // Chart 1: Usage Time (Bar)
+            var usageChartCanvas = $('#usageChart').get(0).getContext('2d');
+            new Chart(usageChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: usageLabels,
+                    datasets: [{
+                        label: 'Horas',
+                        backgroundColor: 'rgba(60,141,188,0.9)',
+                        borderColor: 'rgba(60,141,188,0.8)',
+                        data: usageData,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Logins per User (Donut)
+            var loginUserChartCanvas = $('#loginsUserChart').get(0).getContext('2d');
+            new Chart(loginUserChartCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: loginUserLabels,
+                    datasets: [{
+                        data: loginUserData,
+                        backgroundColor : ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de', '#d2d6de', '#3c8dbc', '#00c0ef', '#f39c12', '#00a65a', '#f56954'],
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                }
+            });
+
+            // Chart 3: Daily Logins (Line)
+            var dailyChartCanvas = $('#dailyLoginsChart').get(0).getContext('2d');
+            new Chart(dailyChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: 'Logins',
+                        backgroundColor: 'rgba(60,141,188,0.2)',
+                        borderColor: 'rgba(60,141,188,1)',
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(60,141,188,1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(60,141,188,1)',
+                        data: dailyData,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -220,11 +220,28 @@
                             <li class="nav-header">ADMINISTRAÇÃO</li>
                             @if (canManageUsers)
                             {
-                                <li class="nav-item">
-                                    <a asp-controller="Users" asp-action="Index" class="nav-link @IsActive("Users")">
+                                <li class="nav-item @(IsActive("Users") == "active" ? "menu-open" : "")">
+                                    <a href="#" class="nav-link @IsActive("Users")">
                                         <i class="nav-icon bi bi-people"></i>
-                                        <p>Utilizadores</p>
+                                        <p>
+                                            Utilizadores
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
                                     </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a asp-controller="Users" asp-action="Index" class="nav-link @(IsActive("Users", "Index") == "active" ? "active" : "")">
+                                                <i class="nav-icon bi bi-list-ul"></i>
+                                                <p>Lista de Utilizadores</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a asp-controller="Users" asp-action="Metrics" class="nav-link @(IsActive("Users", "Metrics") == "active" ? "active" : "")">
+                                                <i class="nav-icon bi bi-bar-chart"></i>
+                                                <p>Métricas</p>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
                             }
                             @if (canManageRoles)
