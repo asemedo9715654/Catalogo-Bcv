@@ -71,6 +71,8 @@
                                 <th>Nome</th>
                                 <th>Descrição</th>
                                 <th class="text-center">Status</th>
+                                <th>Criado em</th>
+                                <th>Atualizado em</th>
                                 <th class="text-end" style="width: 150px">Ações</th>
                             </tr>
                         </thead>
@@ -109,6 +111,8 @@
                                             <span class="badge bg-danger">Inativo</span>
                                         }
                                     </td>
+                                    <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@(item.UpdatedAt.HasValue ? item.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
                                     <td class="text-end">
                                         <div class="btn-group">
                                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Editar">
