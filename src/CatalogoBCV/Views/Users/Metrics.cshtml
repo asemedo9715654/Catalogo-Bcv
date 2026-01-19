@@ -49,6 +49,15 @@
                         <canvas id="dailyLoginsChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
                     </div>
                 </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Total de Horas nos últimos 30 dias</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="dailyUsageChart" style="min-height: 300px; height: 300px; max-height: 300px; max-width: 100%;"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -67,6 +76,9 @@
 
             var dailyLabels = @Html.Raw(Json.Serialize(Model.Last30DaysLogins.Select(u => u.Date.ToString("dd/MM"))));
             var dailyData = @Html.Raw(Json.Serialize(Model.Last30DaysLogins.Select(u => u.Count)));
+
+            var dailyUsageLabels = @Html.Raw(Json.Serialize(Model.Last30DaysUsage.Select(u => u.Date.ToString("dd/MM"))));
+            var dailyUsageData = @Html.Raw(Json.Serialize(Model.Last30DaysUsage.Select(u => u.TotalHours)));
 
             // Chart 1: Usage Time (Bar)
             var usageChartCanvas = $('#usageChart').get(0).getContext('2d');
@@ -154,6 +166,36 @@
                             ticks: {
                                 precision: 0
                             }
+                        }
+                    }
+                }
+            });
+
+            // Chart 4: Daily Usage (Bar)
+            var dailyUsageChartCanvas = $('#dailyUsageChart').get(0).getContext('2d');
+            new Chart(dailyUsageChartCanvas, {
+                type: 'bar',
+                data: {
+                    labels: dailyUsageLabels,
+                    datasets: [{
+                        label: 'Horas',
+                        backgroundColor: 'rgba(40,167,69,0.9)',
+                        borderColor: 'rgba(40,167,69,0.8)',
+                        data: dailyUsageData,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     }
                 }

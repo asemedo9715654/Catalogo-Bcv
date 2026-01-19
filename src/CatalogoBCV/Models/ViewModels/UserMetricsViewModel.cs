@@ -11,6 +11,7 @@ namespace CatalogoBCV.Models.ViewModels
 
         // Tab 2
         public List<DailyLoginMetric> Last30DaysLogins { get; set; } = new();
+        public List<DailyUsageMetric> Last30DaysUsage { get; set; } = new();
     }
 
     public class UserUsageMetric
@@ -29,5 +30,11 @@ namespace CatalogoBCV.Models.ViewModels
     {
         public DateTime Date { get; set; }
         public int Count { get; set; }
+    }
+
+    public class DailyUsageMetric
+    {
+        public DateTime Date { get; set; }
+        public double TotalHours { get; set; }
     }
 }

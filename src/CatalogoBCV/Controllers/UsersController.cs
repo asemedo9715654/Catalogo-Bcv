@@ -74,6 +74,34 @@ namespace CatalogoBCV.Controllers
 
             viewModel.UserUsage = usage;
 
+            // 4. Daily Usage Last 30 Days
+            var dailyUsage = allActivity
+                .Where(a => a.Timestamp >= thirtyDaysAgo)
+                .GroupBy(a => new { a.Username, Date = a.Timestamp.Date })
+                .Select(g => new
+                {
+                    Date = g.Key.Date,
+                    Duration = (g.Max(x => x.Timestamp) - g.Min(x => x.Timestamp)).TotalHours
+                })
+                .GroupBy(x => x.Date)
+                .Select(g => new DailyUsageMetric
+                {
+                    Date = g.Key,
+                    TotalHours = Math.Round(g.Sum(x => x.Duration), 2)
+                })
+                .ToList();
+
+            var fullLast30DaysUsage = new List<DailyUsageMetric>();
+            for (int i = 0; i <= 30; i++)
+            {
+                var date = thirtyDaysAgo.AddDays(i);
+                if (date > DateTime.UtcNow.Date) break;
+
+                var existing = dailyUsage.FirstOrDefault(l => l.Date == date);
+                fullLast30DaysUsage.Add(existing ?? new DailyUsageMetric { Date = date, TotalHours = 0 });
+            }
+            viewModel.Last30DaysUsage = fullLast30DaysUsage;
+
             return View(viewModel);
         }
 
