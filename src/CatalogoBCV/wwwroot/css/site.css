@@ -253,3 +253,21 @@ h1, h2, h3, h4, h5, h6 {
 #toast-container > div {
     opacity: 1;
 }
+
+/* Fix sidebar menu items color to match theme */
+.app-sidebar .nav-link {
+    color: var(--text-dark) !important;
+}
+
+[data-bs-theme="dark"] .app-sidebar .nav-link {
+    color: var(--text-light) !important;
+}
+
+.app-sidebar .nav-link:hover {
+    color: var(--accent-orange) !important;
+}
+
+.app-sidebar .nav-link.active {
+    color: #fff !important;
+    background-color: var(--primary-blue) !important;
+}
