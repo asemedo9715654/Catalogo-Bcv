@@ -39,6 +39,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<IMetadataService, SqlServerMetadataService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddDbContext<CatalogContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

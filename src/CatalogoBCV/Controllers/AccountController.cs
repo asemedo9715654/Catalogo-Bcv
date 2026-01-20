@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using CatalogoBCV.Data;
 using CatalogoBCV.Models;
+using CatalogoBCV.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace CatalogoBCV.Controllers
     public class AccountController : Controller
     {
         private readonly CatalogContext _context;
+        private readonly IPasswordService _passwordService;
 
-        public AccountController(CatalogContext context)
+        public AccountController(CatalogContext context, IPasswordService passwordService)
         {
             _context = context;
+            _passwordService = passwordService;
         }
 
         public IActionResult Login()
@@ -34,10 +37,24 @@ namespace CatalogoBCV.Controllers
 
             if (user != null)
             {
-                if (user.PasswordHash == password) 
+                if (string.IsNullOrEmpty(user.PasswordSalt))
                 {
-                    isValid = true;
-                    role = user.Role?.Name ?? "Reader";
+                    // Legacy: Plain text check
+                    if (user.PasswordHash == password) 
+                    {
+                        isValid = true;
+                        role = user.Role?.Name ?? "Reader";
+                    }
+                }
+                else
+                {
+                    // New: Hashed check
+                    var salt = Convert.FromBase64String(user.PasswordSalt);
+                    if (_passwordService.VerifyPassword(password, user.PasswordHash, salt))
+                    {
+                        isValid = true;
+                        role = user.Role?.Name ?? "Reader";
+                    }
                 }
             }
             else if (username == "admin" && password == "admin")

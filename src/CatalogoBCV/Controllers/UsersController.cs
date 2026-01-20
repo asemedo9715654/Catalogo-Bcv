@@ -1,6 +1,7 @@
 using CatalogoBCV.Data;
 using CatalogoBCV.Models;
 using CatalogoBCV.Models.ViewModels;
+using CatalogoBCV.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,12 @@ namespace CatalogoBCV.Controllers
     public class UsersController : Controller
     {
         private readonly CatalogContext _context;
+        private readonly IPasswordService _passwordService;
 
-        public UsersController(CatalogContext context)
+        public UsersController(CatalogContext context, IPasswordService passwordService)
         {
             _context = context;
+            _passwordService = passwordService;
         }
 
         public async Task<IActionResult> Metrics()
@@ -125,7 +128,11 @@ namespace CatalogoBCV.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Em produção: Hash password
+                // Hash password
+                var hash = _passwordService.HashPassword(user.PasswordHash, out var salt);
+                user.PasswordHash = hash;
+                user.PasswordSalt = Convert.ToBase64String(salt);
+
                 _context.Add(user);
                 
                 // Audit
