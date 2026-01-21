@@ -199,8 +199,15 @@
                                 <div class="d-flex flex-wrap gap-2 align-items-center">
                                     @foreach (var tag in Model.Tags)
                                     {
-                                        <span class="badge rounded-pill bg-light text-dark border shadow-sm px-3 py-2">
-                                            <i class="bi bi-tag-fill me-1"></i> @tag.Name
+                                        <span class="badge rounded-pill bg-light text-dark border shadow-sm ps-3 pe-2 py-2 d-inline-flex align-items-center">
+                                            <i class="bi bi-tag-fill me-2"></i> @tag.Name
+                                            <form asp-action="RemoveTableTag" method="post" class="d-inline ms-2">
+                                                <input type="hidden" name="tableId" value="@Model.Id" />
+                                                <input type="hidden" name="tagId" value="@tag.Id" />
+                                                <button type="submit" class="btn btn-link p-0 text-secondary lh-1 hover-danger" style="font-size: 0.9rem; text-decoration: none;" title="Remover Tag">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                </button>
+                                            </form>
                                         </span>
                                     }
                                     <form asp-action="AddTableTag" method="post" class="d-inline-flex">
@@ -549,9 +556,15 @@
                                                 </div>
                                                 <div class="d-flex align-items-center">
                                                     <small class="text-muted me-2" style="font-size: 0.7rem;">@comment.CreatedAt.ToString("g")</small>
-                                                    <button type="button" class="btn btn-link btn-sm p-0 text-secondary" data-bs-toggle="modal" data-bs-target="#editCommentModal-@comment.Id" title="Editar">
+                                                    <button type="button" class="btn btn-link btn-sm p-0 text-secondary me-2" data-bs-toggle="modal" data-bs-target="#editCommentModal-@comment.Id" title="Editar">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
+                                                    <form asp-action="RemoveTableComment" method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja remover este comentário?');">
+                                                        <input type="hidden" name="commentId" value="@comment.Id" />
+                                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger" title="Remover">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </div>
                                             <div class="card-body py-2 px-2">
@@ -652,7 +665,16 @@
                                 {
                                     foreach (var tag in col.Tags)
                                     {
-                                        <span class="badge rounded-pill bg-light text-dark border">@tag.Name</span>
+                                        <span class="badge rounded-pill bg-light text-dark border d-inline-flex align-items-center">
+                                            @tag.Name
+                                            <form asp-action="RemoveColumnTag" method="post" class="d-inline ms-2">
+                                                <input type="hidden" name="columnId" value="@col.Id" />
+                                                <input type="hidden" name="tagId" value="@tag.Id" />
+                                                <button type="submit" class="btn btn-link p-0 text-secondary lh-1 hover-danger" style="font-size: 0.8rem; text-decoration: none;" title="Remover Tag">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                </button>
+                                            </form>
+                                        </span>
                                     }
                                 }
                                 else
@@ -686,7 +708,15 @@
                                                         </span>
                                                         <strong class="small text-primary">@comment.CreatedBy</strong>
                                                     </div>
-                                                    <small class="text-muted" style="font-size: 0.75em;">@comment.CreatedAt.ToString("dd/MM/yy HH:mm")</small>
+                                                    <div class="d-flex align-items-center">
+                                                        <small class="text-muted me-2" style="font-size: 0.75em;">@comment.CreatedAt.ToString("dd/MM/yy HH:mm")</small>
+                                                        <form asp-action="RemoveColumnComment" method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja remover este comentário?');">
+                                                            <input type="hidden" name="commentId" value="@comment.Id" />
+                                                            <button type="submit" class="btn btn-link p-0 text-danger lh-1" style="font-size: 0.8rem;" title="Remover">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                                 <p class="mb-0 small text-break">@comment.Content</p>
                                             </li>

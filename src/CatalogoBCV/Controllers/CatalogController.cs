@@ -569,6 +569,21 @@ namespace CatalogoBCV.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> RemoveTableComment(int commentId)
+        {
+            var comment = await _context.TableComments.FindAsync(commentId);
+            if (comment == null) return NotFound();
+
+            // Optional: Check if user is author or admin
+            // if (comment.CreatedBy != User.Identity?.Name && !User.IsInRole("Admin")) return Forbid();
+
+            _context.TableComments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(TableDetails), new { id = comment.TableId });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddColumnComment(int columnId, string content, CommentType type)
         {
             if (string.IsNullOrWhiteSpace(content)) 
@@ -596,6 +611,19 @@ namespace CatalogoBCV.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> RemoveColumnComment(int commentId)
+        {
+            var comment = await _context.ColumnComments.FindAsync(commentId);
+            if (comment == null) return NotFound();
+
+            _context.ColumnComments.Remove(comment);
+            await _context.SaveChangesAsync();
+            
+            var column = await _context.Columns.FindAsync(comment.ColumnId);
+            return RedirectToAction(nameof(TableDetails), new { id = column?.TableId });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> AddTableTag(int tableId, string tagName)
         {
             if (string.IsNullOrWhiteSpace(tagName)) return RedirectToAction(nameof(TableDetails), new { id = tableId });
@@ -614,6 +642,22 @@ namespace CatalogoBCV.Controllers
             if (!table.Tags.Any(t => t.Id == tag.Id))
             {
                 table.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(TableDetails), new { id = tableId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveTableTag(int tableId, int tagId)
+        {
+            var table = await _context.Tables.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == tableId);
+            if (table == null) return NotFound();
+
+            var tag = table.Tags.FirstOrDefault(t => t.Id == tagId);
+            if (tag != null)
+            {
+                table.Tags.Remove(tag);
                 await _context.SaveChangesAsync();
             }
 
@@ -643,6 +687,22 @@ namespace CatalogoBCV.Controllers
             if (!column.Tags.Any(t => t.Id == tag.Id))
             {
                 column.Tags.Add(tag);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(TableDetails), new { id = column.TableId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveColumnTag(int columnId, int tagId)
+        {
+            var column = await _context.Columns.Include(c => c.Tags).FirstOrDefaultAsync(c => c.Id == columnId);
+            if (column == null) return NotFound();
+
+            var tag = column.Tags.FirstOrDefault(t => t.Id == tagId);
+            if (tag != null)
+            {
+                column.Tags.Remove(tag);
                 await _context.SaveChangesAsync();
             }
 
