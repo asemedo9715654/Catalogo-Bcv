@@ -37,7 +37,10 @@ namespace CatalogoBCV.Data
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedAt = DateTime.Now;
-                    entry.Entity.CreatedBy = currentUser;
+                    if (string.IsNullOrEmpty(entry.Entity.CreatedBy))
+                    {
+                        entry.Entity.CreatedBy = currentUser;
+                    }
                 }
                 else if (entry.State == EntityState.Modified)
                 {
