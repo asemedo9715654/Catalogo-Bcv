@@ -23,9 +23,8 @@
 }
 
 <div class="container-fluid">
-    <form asp-action="Update" method="post">
-        <div class="row">
-            <div class="col-md-3">
+    <div class="row">
+        <div class="col-md-3">
                 <!-- Navigation (Optional, could be a list of groups to jump to) -->
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
@@ -43,7 +42,7 @@
 
                 <div class="card shadow mb-4">
                     <div class="card-body">
-                        <button type="submit" class="btn btn-primary btn-block w-100 mb-2">
+                        <button type="submit" form="settingsForm" class="btn btn-primary btn-block w-100 mb-2">
                             <i class="fas fa-save me-2"></i> Salvar Tudo
                         </button>
                         <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-block w-100">
@@ -54,8 +53,46 @@
             </div>
 
             <div class="col-md-9">
+                <!-- Logo Upload Section -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-image me-2"></i> Logo da Aplicação
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="UploadLogo" method="post" enctype="multipart/form-data">
+                            <div class="form-group row mb-3">
+                                <label class="col-sm-4 col-form-label">Logo Atual</label>
+                                <div class="col-sm-8">
+                                    @{
+                                        var logoPath = Model.FirstOrDefault(s => s.Key == "LogoPath")?.Value ?? "/images/logo.png";
+                                    }
+                                    <img src="@logoPath" alt="Logo Atual" class="img-thumbnail bg-dark" style="max-height: 80px;">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="logoFile" class="col-sm-4 col-form-label">Alterar Logo</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" id="logoFile" name="logoFile" accept=".png,.jpg,.jpeg,.gif,.svg,.ico" required>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-upload me-2"></i> Upload
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">Formatos permitidos: PNG, JPG, GIF, SVG, ICO.</small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <form id="settingsForm" asp-action="Update" method="post">
                 @foreach (var group in Model.GroupBy(x => x.Group).OrderBy(g => g.Key))
                 {
+                    var visibleSettings = group.Where(s => s.Key != "LogoPath").ToList();
+                    if (!visibleSettings.Any()) continue;
+
                     <div class="card shadow mb-4" id="group-@group.Key.Replace(" ", "")">
                         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                             <h6 class="m-0 font-weight-bold text-primary">
@@ -63,7 +100,7 @@
                             </h6>
                         </div>
                         <div class="card-body">
-                            @foreach (var setting in group)
+                            @foreach (var setting in visibleSettings)
                             {
                                 <div class="form-group row mb-4">
                                     <label for="setting_@setting.Key" class="col-sm-4 col-form-label">
@@ -127,9 +164,9 @@
                         </div>
                     </div>
                 }
+                </form>
             </div>
         </div>
-    </form>
 </div>
 
 @functions {
