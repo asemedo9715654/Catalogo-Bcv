@@ -51,6 +51,13 @@ namespace CatalogoBCV.Data
                     entry.Property(x => x.CreatedAt).IsModified = false;
                     entry.Property(x => x.CreatedBy).IsModified = false;
                 }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = true;
+                    entry.Entity.DeletedAt = DateTime.Now;
+                    entry.Entity.DeletedBy = currentUser;
+                }
             }
         }
 
@@ -133,6 +140,22 @@ namespace CatalogoBCV.Data
                 new SystemSetting { Key = "HeaderColor", Value = "#ffffff", Description = "Header Background Color", Group = "Appearance", Type = "color" },
                 new SystemSetting { Key = "SidebarColor", Value = "#f8f9fa", Description = "Sidebar Background Color", Group = "Appearance", Type = "color" }
             );
+
+            // Apply Global Query Filter for Soft Delete
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    var method = typeof(CatalogContext).GetMethod(nameof(SetGlobalQueryFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                    var genericMethod = method?.MakeGenericMethod(entityType.ClrType);
+                    genericMethod?.Invoke(null, new object[] { modelBuilder });
+                }
+            }
+        }
+
+        private static void SetGlobalQueryFilter<T>(ModelBuilder modelBuilder) where T : BaseEntity
+        {
+            modelBuilder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
         }
     }
 }
