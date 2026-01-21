@@ -573,7 +573,7 @@ namespace CatalogoBCV.Controllers
             var comment = await _context.TableComments.FindAsync(commentId);
             if (comment == null) return NotFound();
 
-            if (!string.Equals(comment.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
+            if (!User.IsInRole("Admin") && !string.Equals(comment.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
 
             _context.TableComments.Remove(comment);
             await _context.SaveChangesAsync();
@@ -614,7 +614,7 @@ namespace CatalogoBCV.Controllers
             var comment = await _context.ColumnComments.FindAsync(commentId);
             if (comment == null) return NotFound();
 
-            if (!string.Equals(comment.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
+            if (!User.IsInRole("Admin") && !string.Equals(comment.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
 
             _context.ColumnComments.Remove(comment);
             await _context.SaveChangesAsync();
@@ -661,7 +661,7 @@ namespace CatalogoBCV.Controllers
             var tag = table.Tags.FirstOrDefault(t => t.Id == tagId);
             if (tag != null)
             {
-                if (!string.Equals(tag.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
+                if (!User.IsInRole("Admin") && !string.Equals(tag.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
 
                 table.Tags.Remove(tag);
                 await _context.SaveChangesAsync();
@@ -712,7 +712,7 @@ namespace CatalogoBCV.Controllers
             var tag = column.Tags.FirstOrDefault(t => t.Id == tagId);
             if (tag != null)
             {
-                if (!string.Equals(tag.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
+                if (!User.IsInRole("Admin") && !string.Equals(tag.CreatedBy, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)) return Forbid();
 
                 column.Tags.Remove(tag);
                 await _context.SaveChangesAsync();
