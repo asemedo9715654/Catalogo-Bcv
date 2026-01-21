@@ -124,14 +124,21 @@ namespace CatalogoBCV.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(User user)
+        public async Task<IActionResult> Create(CreateUserViewModel model)
         {
             if (ModelState.IsValid)
             {
                 // Hash password
-                var hash = _passwordService.HashPassword(user.PasswordHash, out var salt);
-                user.PasswordHash = hash;
-                user.PasswordSalt = Convert.ToBase64String(salt);
+                var hash = _passwordService.HashPassword(model.Password, out var salt);
+                
+                var user = new User
+                {
+                    Username = model.Username,
+                    PasswordHash = hash,
+                    PasswordSalt = Convert.ToBase64String(salt),
+                    RoleId = model.RoleId,
+                    IsActive = model.IsActive
+                };
 
                 _context.Add(user);
                 
@@ -149,7 +156,7 @@ namespace CatalogoBCV.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Roles = new SelectList(_context.Roles.OrderBy(r => r.Name), "Id", "Name");
-            return View(user);
+            return View(model);
         }
     }
 }

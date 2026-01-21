@@ -1,5 +1,5 @@
 @using CatalogoBCV.Models
-@model CatalogoBCV.Models.User
+@model CatalogoBCV.Models.ViewModels.CreateUserViewModel
 
 @{
     ViewData["Title"] = "Novo Utilizador";
@@ -46,11 +46,19 @@
                             </div>
                             
                             <div class="mb-3">
-                                <label asp-for="PasswordHash" class="form-label">
+                                <label asp-for="Password" class="form-label">
                                     <i class="bi bi-key me-1"></i> Password
                                 </label>
-                                <input asp-for="PasswordHash" type="password" class="form-control" placeholder="Introduza a password" />
-                                <span asp-validation-for="PasswordHash" class="text-danger small"></span>
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Introduza a password" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label">
+                                    <i class="bi bi-check-circle me-1"></i> Confirmar Password
+                                </label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirme a password" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                             </div>
                             
                             <div class="mb-3">
