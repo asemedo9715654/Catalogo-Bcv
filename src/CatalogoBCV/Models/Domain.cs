@@ -7,5 +7,6 @@ namespace CatalogoBCV.Models
         public string? Description { get; set; }
 
         public List<Table> Tables { get; set; } = new();
+        public List<SubDomain> SubDomains { get; set; } = new();
     }
 }

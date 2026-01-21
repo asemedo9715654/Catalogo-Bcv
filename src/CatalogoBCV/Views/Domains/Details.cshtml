@@ -32,6 +32,9 @@
                         <p class="text-muted text-center">Domínio de Dados</p>
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
+                                <b>Subdomínios</b> <a class="float-end">@(Model.SubDomains?.Count ?? 0)</a>
+                            </li>
+                            <li class="list-group-item">
                                 <b>Tabelas</b> <a class="float-end">@(Model.Tables?.Count ?? 0)</a>
                             </li>
                         </ul>
@@ -41,6 +44,56 @@
                 </div>
             </div>
             <div class="col-md-8">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title">Subdomínios</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-bs-toggle="modal" data-bs-target="#createSubDomainModal" title="Adicionar Subdomínio">
+                                <i class="bi bi-plus-lg"></i> Adicionar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model?.SubDomains != null && Model.SubDomains.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Descrição</th>
+                                            <th style="width: 100px">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var subDomain in Model.SubDomains)
+                                        {
+                                            <tr>
+                                                <td>@subDomain.Name</td>
+                                                <td>@subDomain.Description</td>
+                                                <td class="text-nowrap">
+                                                    <a asp-controller="Domains" asp-action="EditSubDomain" asp-route-id="@subDomain.Id" class="btn btn-sm btn-primary" title="Editar">
+                                                        <i class="bi bi-pencil-fill"></i>
+                                                    </a>
+                                                    <a asp-controller="Domains" asp-action="DeleteSubDomain" asp-route-id="@subDomain.Id" class="btn btn-sm btn-danger" title="Apagar">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="p-3 text-center text-muted">
+                                Nenhum subdomínio associado a este domínio.
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Tabelas Associadas</h3>
@@ -91,3 +144,67 @@
         </div>
     </div>
 </section>
+
+<!-- Modal Create SubDomain -->
+<div class="modal fade" id="createSubDomainModal" tabindex="-1" aria-labelledby="createSubDomainModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createSubDomainModalLabel">Novo Subdomínio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <partial name="~/Views/Domains/_CreateSubDomain.cshtml" model="new CatalogoBCV.Models.SubDomain { DomainId = Model.Id }" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Intercept form submission in the modal
+            $(document).on('submit', '#createSubDomainModal form', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                
+                // Add debug logging
+                console.log('Submitting form to: ' + url);
+                
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    success: function (data) {
+                        console.log('Success response received');
+                        if (data.success) {
+                            // Reload page to show new subdomain
+                            location.reload(); 
+                        } else {
+                            // Replace modal body with partial view (containing errors)
+                            $('#createSubDomainModal .modal-content').find('form').replaceWith(data);
+                            
+                            // Re-parse validation
+                            var newForm = $('#createSubDomainModal form');
+                            $.validator.unobtrusive.parse(newForm);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error submitting form:', error);
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        
+                        var msg = "Ocorreu um erro ao processar o pedido.";
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(msg);
+                        } else {
+                            alert(msg);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}
+

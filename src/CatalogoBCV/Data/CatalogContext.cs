@@ -72,6 +72,7 @@ namespace CatalogoBCV.Data
         public DbSet<ColumnComment> ColumnComments { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Domain> Domains { get; set; }
+        public DbSet<SubDomain> SubDomains { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<SourceSystem> SourceSystems { get; set; }

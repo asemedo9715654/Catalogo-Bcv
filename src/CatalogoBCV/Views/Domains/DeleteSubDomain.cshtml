@@ -1,0 +1,66 @@
+@model CatalogoBCV.Models.SubDomain
+
+@{
+    ViewData["Title"] = "Apagar Subdomínio";
+}
+
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Apagar Subdomínio</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-controller="Domains" asp-action="Index">Domínios</a></li>
+                        <li class="breadcrumb-item active">Apagar Subdomínio</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">Tem a certeza que deseja apagar este subdomínio?</h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Name)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Name)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Description)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Description)
+                            </dd>
+                            <dt class="col-sm-2">
+                                Domínio
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Domain.Name)
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="card-footer">
+                        <form asp-action="DeleteSubDomain">
+                            <input type="hidden" asp-for="Id" />
+                            <a href="javascript:history.back()" class="btn btn-secondary">Cancelar</a>
+                            <input type="submit" value="Apagar" class="btn btn-danger float-end" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
