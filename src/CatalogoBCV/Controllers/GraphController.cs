@@ -87,6 +87,7 @@ namespace CatalogoBCV.Controllers
                 else if (table.Name.Contains("Tempo", StringComparison.OrdinalIgnoreCase) || 
                          table.Name.Contains("Time", StringComparison.OrdinalIgnoreCase) ||
                          table.Name.Contains("Date", StringComparison.OrdinalIgnoreCase) ||
+                         table.Name.Contains("Dim_Data", StringComparison.OrdinalIgnoreCase) ||
                          table.Name.Contains("Calend", StringComparison.OrdinalIgnoreCase))
                 {
                     nodeType = "time";
