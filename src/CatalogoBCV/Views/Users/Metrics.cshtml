@@ -3,6 +3,25 @@
     ViewData["Title"] = "Métricas de Utilizadores";
 }
 
+@section ContentHeader {
+    <div class="app-content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Métricas de Utilizadores</h3>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item"><a asp-action="Index">Utilizadores</a></li>
+                        <li class="breadcrumb-item active">Métricas</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="card card-primary card-outline card-outline-tabs">
     <div class="card-header p-0 border-bottom-0">
         <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">

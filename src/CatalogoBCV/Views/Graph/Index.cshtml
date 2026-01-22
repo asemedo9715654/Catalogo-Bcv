@@ -26,6 +26,24 @@ else
     <style>
         #cy { width: 100%; height: 600px; border: 1px solid #ddd; background: #f9f9f9; }
     </style>
+
+    @section ContentHeader {
+        <div class="app-content-header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3 class="mb-0">Visualização de Grafo</h3>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-end">
+                            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                            <li class="breadcrumb-item active">Grafo</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @if ((ViewBag.Embedded as bool?) != true)

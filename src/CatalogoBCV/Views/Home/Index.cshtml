@@ -13,11 +13,17 @@
                     <h3 class="mb-0">Dashboard</h3>
                 </div>
                 <div class="col-sm-6">
-                    <div class="float-sm-end">
-                        <a asp-controller="Catalog" asp-action="Create" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus fa-sm text-white-50"></i> Nova Base de Dados
-                        </a>
-                    </div>
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="row mt-2">
+                 <div class="col-12 text-end">
+                    <a asp-controller="Catalog" asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus fa-sm text-white-50"></i> Nova Base de Dados
+                    </a>
                 </div>
             </div>
         </div>
