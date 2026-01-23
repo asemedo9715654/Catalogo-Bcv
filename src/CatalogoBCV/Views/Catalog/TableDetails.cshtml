@@ -192,7 +192,7 @@
                             <dd class="col-sm-9">@(Model.DependentDashboards ?? "-")</dd>
 
                             <dt class="col-sm-3">Descrição</dt>
-                            <dd class="col-sm-9">@Model.Description</dd>
+                            <dd class="col-sm-9">@Html.Raw(Model.Description)</dd>
                             
                             <dt class="col-sm-3">Tags</dt>
                             <dd class="col-sm-9">

@@ -105,7 +105,7 @@ namespace CatalogoBCV.Controllers
                     foreach (var table in db.Tables)
                     {
                         body.AppendChild(new Paragraph(new Run(new Text($"Tabela: {table.Schema}.{table.Name}")) { RunProperties = new RunProperties(new Bold(), new FontSize { Val = "24" }) }));
-                        body.AppendChild(new Paragraph(new Run(new Text($"Descrição: {table.Description ?? "N/A"}"))));
+                        body.AppendChild(new Paragraph(new Run(new Text($"Descrição: {StripHtml(table.Description) ?? "N/A"}"))));
                         
                         // Table for Columns
                         var wordTable = new DocumentFormat.OpenXml.Wordprocessing.Table();
@@ -198,7 +198,7 @@ namespace CatalogoBCV.Controllers
                                 {
                                     c.Spacing(5);
                                     c.Item().Text($"Tabela: {table.Schema}.{table.Name}").FontSize(16).Bold();
-                                    c.Item().Text($"Descrição: {table.Description ?? "N/A"}").Italic();
+                                    c.Item().Text($"Descrição: {StripHtml(table.Description) ?? "N/A"}").Italic();
 
                                     c.Item().Table(t =>
                                     {
@@ -261,6 +261,12 @@ namespace CatalogoBCV.Controllers
             stream.Position = 0;
 
             return File(stream, "application/pdf", $"Catalogo_{db.DatabaseName}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+        }
+
+        private string StripHtml(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return string.Empty;
+            return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", String.Empty);
         }
 
         [Authorize(Policy = "CanCreateCatalog")]
