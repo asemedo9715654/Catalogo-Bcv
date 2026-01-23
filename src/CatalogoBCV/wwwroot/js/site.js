@@ -14,7 +14,8 @@ $(document).ready(function () {
         }
 
         debounceTimer = setTimeout(function () {
-            $.get('/Catalog/Search', { query: query }, function (data) {
+            const baseUrl = window.appBaseUrl || '/';
+            $.get(`${baseUrl}Catalog/Search`, { query: query }, function (data) {
                 $searchResults.empty();
 
                 if (data.databases.length === 0 && data.tables.length === 0 && data.columns.length === 0) {
@@ -23,21 +24,21 @@ $(document).ready(function () {
                     if (data.databases.length > 0) {
                         $searchResults.append('<div class="list-group-item list-group-item-light fw-bold">Bases de Dados</div>');
                         data.databases.forEach(db => {
-                            $searchResults.append(`<a href="/Catalog/Details/${db.id}" class="list-group-item list-group-item-action">${db.name} <small class="text-muted">(${db.server})</small></a>`);
+                            $searchResults.append(`<a href="${baseUrl}Catalog/Details/${db.id}" class="list-group-item list-group-item-action">${db.name} <small class="text-muted">(${db.server})</small></a>`);
                         });
                     }
 
                     if (data.tables.length > 0) {
                         $searchResults.append('<div class="list-group-item list-group-item-light fw-bold">Tabelas</div>');
                         data.tables.forEach(table => {
-                            $searchResults.append(`<a href="/Catalog/TableDetails/${table.id}" class="list-group-item list-group-item-action">${table.schema}.${table.name} <small class="text-muted">em ${table.databaseName}</small></a>`);
+                            $searchResults.append(`<a href="${baseUrl}Catalog/TableDetails/${table.id}" class="list-group-item list-group-item-action">${table.schema}.${table.name} <small class="text-muted">em ${table.databaseName}</small></a>`);
                         });
                     }
 
                     if (data.columns.length > 0) {
                         $searchResults.append('<div class="list-group-item list-group-item-light fw-bold">Colunas</div>');
                         data.columns.forEach(col => {
-                            $searchResults.append(`<a href="/Catalog/TableDetails/${col.id}" class="list-group-item list-group-item-action">${col.columnName} <small class="text-muted">em ${col.databaseName}.${col.tableName}</small></a>`);
+                            $searchResults.append(`<a href="${baseUrl}Catalog/TableDetails/${col.id}" class="list-group-item list-group-item-action">${col.columnName} <small class="text-muted">em ${col.databaseName}.${col.tableName}</small></a>`);
                         });
                     }
                 }
