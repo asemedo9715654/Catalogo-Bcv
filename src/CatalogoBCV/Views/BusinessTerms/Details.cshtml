@@ -1,0 +1,85 @@
+@model CatalogoBCV.Models.BusinessTerm
+
+@{
+    ViewData["Title"] = "Detalhes do Termo: " + Model.Term;
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Informações do Termo</h3>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.Term)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        @Html.DisplayFor(model => model.Term)
+                    </dd>
+                    
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.Definition)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        <div class="p-3 bg-light border rounded">
+                            @Html.DisplayFor(model => model.Definition)
+                        </div>
+                    </dd>
+                    
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.Owner)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        @Html.DisplayFor(model => model.Owner)
+                    </dd>
+                    
+                    <dt class = "col-sm-2">
+                        @Html.DisplayNameFor(model => model.Status)
+                    </dt>
+                    <dd class = "col-sm-10">
+                        <span class="badge @GetStatusBadgeClass(Model.Status)">
+                            @Html.DisplayFor(model => model.Status)
+                        </span>
+                    </dd>
+
+                    <dt class = "col-sm-2">
+                        Criado em
+                    </dt>
+                    <dd class = "col-sm-10">
+                        @Model.CreatedAt.ToString("g") por @Model.CreatedBy
+                    </dd>
+
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <dt class = "col-sm-2">
+                            Atualizado em
+                        </dt>
+                        <dd class = "col-sm-10">
+                            @Model.UpdatedAt.Value.ToString("g") por @Model.UpdatedBy
+                        </dd>
+                    }
+                </dl>
+            </div>
+            <div class="card-footer">
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Editar</a>
+                <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(CatalogoBCV.Models.TermStatus status)
+    {
+        return status switch
+        {
+            CatalogoBCV.Models.TermStatus.Approved => "bg-success",
+            CatalogoBCV.Models.TermStatus.Draft => "bg-warning text-dark",
+            CatalogoBCV.Models.TermStatus.Deprecated => "bg-danger",
+            CatalogoBCV.Models.TermStatus.Obsolete => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+}

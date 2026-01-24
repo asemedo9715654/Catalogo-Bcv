@@ -76,6 +76,7 @@ namespace CatalogoBCV.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<SourceSystem> SourceSystems { get; set; }
+        public DbSet<BusinessTerm> BusinessTerms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
