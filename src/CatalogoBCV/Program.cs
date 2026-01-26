@@ -1,6 +1,7 @@
 using CatalogoBCV.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using CatalogoBCV.Filters;
 
 using CatalogoBCV.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,7 +20,10 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .WriteTo.Console());
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<SerilogActionFilter>();
+});
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
