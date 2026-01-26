@@ -1,11 +1,22 @@
 using CatalogoBCV.Data;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 using CatalogoBCV.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("ApplicationName", "CataloqueBcv")
+    .Enrich.WithProperty("Environment", "Desenvolvimento")
+    .Enrich.WithProperty("ServerName", Environment.MachineName)
+    .Enrich.WithProperty("AppVersion", "1.0.0")
+    .WriteTo.Seq("http://bcv_appt2012:5341/")
+    .WriteTo.Console());
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -60,6 +71,17 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSerilogRequestLogging();
+
+app.Use(async (context, next) =>
+{
+    var username = context.User?.Identity?.IsAuthenticated == true ? context.User.Identity.Name : "Anonymous";
+    using (Serilog.Context.LogContext.PushProperty("User", username))
+    {
+        await next();
+    }
+});
 
 
 app.MapStaticAssets();
