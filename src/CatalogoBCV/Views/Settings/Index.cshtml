@@ -66,9 +66,9 @@
                                 <label class="col-sm-4 col-form-label">Logo Atual</label>
                                 <div class="col-sm-8">
                                     @{
-                                        var logoPath = Model.FirstOrDefault(s => s.Key == "LogoPath")?.Value ?? "/images/logo.png";
+                                        var logoPath = Model.FirstOrDefault(s => s.Key == "LogoPath")?.Value ?? "~/images/logo.png";
                                     }
-                                    <img src="@logoPath" alt="Logo Atual" class="img-thumbnail bg-dark" style="max-height: 80px;">
+                                    <img src="@Url.Content(logoPath)" alt="Logo Atual" class="img-thumbnail bg-dark" style="max-height: 80px;">
                                 </div>
                             </div>
                             <div class="form-group row">

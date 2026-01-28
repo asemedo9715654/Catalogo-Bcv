@@ -7,7 +7,7 @@
     var primaryColor = await SettingsService.GetSettingAsync("PrimaryColor", "#0d6efd");
     var headerColor = await SettingsService.GetSettingAsync("HeaderColor", "#ffffff");
     var sidebarColor = await SettingsService.GetSettingAsync("SidebarColor", "#f8f9fa");
-    var logoPath = await SettingsService.GetSettingAsync("LogoPath", "/images/logo.png");
+    var logoPath = await SettingsService.GetSettingAsync("LogoPath", "~/images/logo.png");
 
     var bodyClass = theme == "dark" ? "layout-fixed sidebar-expand-lg bg-body-tertiary dark-mode" : "layout-fixed sidebar-expand-lg bg-body-tertiary";
     // If adminlte uses data-bs-theme attribute, we might want to set that on html or body.
@@ -36,6 +36,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - @appTitle</title>
+    <link rel="icon" href="@Url.Content(logoPath)" />
     
     <style>
         :root {
@@ -161,7 +162,7 @@
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="@theme">
             <div class="sidebar-brand">
                 <a href="@Url.Action("Index", "Home")" class="brand-link">
-                    <img src="@logoPath" alt="@appTitle Logo" class="brand-image opacity-75 shadow" style="max-height: 33px;">
+                    <img src="@Url.Content(logoPath)" alt="@appTitle Logo" class="brand-image opacity-75 shadow" style="max-height: 33px;">
                     <span class="brand-text fw-light">@appTitle</span>
                 </a>
             </div>

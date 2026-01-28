@@ -94,7 +94,7 @@ namespace CatalogoBCV.Controllers
                 setting = new SystemSetting
                 {
                     Key = "LogoPath",
-                    Value = $"/images/{fileName}",
+                    Value = $"~/images/{fileName}",
                     Description = "Caminho do arquivo de logo da aplicação",
                     Group = "Visual",
                     Type = "string"
@@ -106,7 +106,9 @@ namespace CatalogoBCV.Controllers
                 // Delete old custom logo if it exists and is not one of the defaults
                 if (!string.IsNullOrEmpty(setting.Value) && 
                     !setting.Value.Equals("/images/logo.png", StringComparison.OrdinalIgnoreCase) && 
-                    !setting.Value.Equals("/images/logo1.png", StringComparison.OrdinalIgnoreCase))
+                    !setting.Value.Equals("/images/logo1.png", StringComparison.OrdinalIgnoreCase) &&
+                    !setting.Value.Equals("~/images/logo.png", StringComparison.OrdinalIgnoreCase) && 
+                    !setting.Value.Equals("~/images/logo1.png", StringComparison.OrdinalIgnoreCase))
                 {
                     try
                     {
@@ -123,7 +125,7 @@ namespace CatalogoBCV.Controllers
                     }
                 }
                 
-                setting.Value = $"/images/{fileName}";
+                setting.Value = $"~/images/{fileName}";
             }
 
             await _context.SaveChangesAsync();
