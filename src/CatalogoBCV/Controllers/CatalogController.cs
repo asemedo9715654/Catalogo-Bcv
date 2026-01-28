@@ -474,7 +474,11 @@ namespace CatalogoBCV.Controllers
 
             var tables = await _context.Tables
                 .Include(t => t.CatalogDatabase)
-                .Where(t => t.Name.Contains(term) || (t.Alias != null && t.Alias.Contains(term)) || (t.Description != null && t.Description.Contains(term)))
+                .Where(t => t.Name.Contains(term) 
+                         || (t.Alias != null && t.Alias.Contains(term)) 
+                         || (t.Description != null && t.Description.Contains(term))
+                         || t.Tags.Any(tag => tag.Name.Contains(term))
+                         || t.Comments.Any(comment => comment.Content.Contains(term)))
                 .Select(t => new { id = t.Id, name = t.Name, schema = t.Schema, databaseName = t.CatalogDatabase.DatabaseName, type = "Table" })
                 .Take(10)
                 .ToListAsync();
@@ -482,7 +486,11 @@ namespace CatalogoBCV.Controllers
             var columns = await _context.Columns
                 .Include(c => c.Table)
                 .ThenInclude(t => t.CatalogDatabase)
-                .Where(c => c.Name.Contains(term) || (c.Alias != null && c.Alias.Contains(term)) || (c.Description != null && c.Description.Contains(term)))
+                .Where(c => c.Name.Contains(term) 
+                         || (c.Alias != null && c.Alias.Contains(term)) 
+                         || (c.Description != null && c.Description.Contains(term))
+                         || c.Tags.Any(tag => tag.Name.Contains(term))
+                         || c.Comments.Any(comment => comment.Content.Contains(term)))
                 .Select(c => new { id = c.TableId, tableName = c.Table.Name, columnName = c.Name, databaseName = c.Table.CatalogDatabase.DatabaseName, type = "Column" })
                 .Take(10)
                 .ToListAsync();
