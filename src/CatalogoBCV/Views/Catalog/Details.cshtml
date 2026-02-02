@@ -170,6 +170,7 @@
                                 <th>Alias</th>
                                 <th>Status</th>
                                 <th>Tipo</th>
+                                <th>Fonte</th>
                                 <th class="text-end">Linhas</th>
                                 <th>Descrição</th>
                                 <th class="text-end pe-4" style="width: 120px">Ações</th>
@@ -204,6 +205,9 @@
                                     </td>
                                     <td>
                                         <span class="badge bg-light text-secondary border">@table.Type</span>
+                                    </td>
+                                    <td>
+                                        @(table.SourceSystem?.Name ?? "-")
                                     </td>
                                     <td class="text-end font-monospace small">
                                         @(table.RowCount.HasValue ? table.RowCount.Value.ToString("N0") : "-")

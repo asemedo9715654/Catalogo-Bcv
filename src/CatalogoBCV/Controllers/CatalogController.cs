@@ -40,7 +40,9 @@ namespace CatalogoBCV.Controllers
         {
             var db = await _context.CatalogDatabases
                 .Include(d => d.Tables)
-                .ThenInclude(t => t.Columns)
+                    .ThenInclude(t => t.Columns)
+                .Include(d => d.Tables)
+                    .ThenInclude(t => t.SourceSystem)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (db == null) return NotFound();
@@ -504,7 +506,9 @@ namespace CatalogoBCV.Controllers
 
             var db = await _context.CatalogDatabases
                 .Include(d => d.Tables)
-                .ThenInclude(t => t.Columns)
+                    .ThenInclude(t => t.Columns)
+                .Include(d => d.Tables)
+                    .ThenInclude(t => t.SourceSystem)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (db == null) return NotFound();
