@@ -126,11 +126,22 @@ else
             elements: graphData,
             
             layout: {
-                name: 'dagre',
-                rankDir: 'LR',
-                nodeSep: 100,
-                rankSep: 300,
-                animate: true
+                name: 'cose',
+                animate: true,
+                randomize: true, 
+                componentSpacing: 100,
+                nodeRepulsion: function( node ){ return 400000; },
+                nodeOverlap: 20,
+                idealEdgeLength: function( edge ){ return 150; },
+                edgeElasticity: function( edge ){ return 100; },
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0,
+                fit: true, 
+                padding: 30
             },
             
             style: [
