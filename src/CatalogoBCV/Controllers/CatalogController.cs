@@ -361,6 +361,7 @@ namespace CatalogoBCV.Controllers
             {
                 var freshTables = await _metadataService.GetMetadataAsync(connectionString);
                 int newTablesCount = 0;
+                int removedTablesCount = 0;
                 int newColumnsCount = 0;
                 int updatedColumnsCount = 0;
                 bool hasSchemaChanges = false;
@@ -420,6 +421,20 @@ namespace CatalogoBCV.Controllers
                     }
                 }
 
+                // Check for removed tables
+                var freshTableKeys = new HashSet<(string Schema, string Name)>(freshTables.Select(t => (t.Schema, t.Name)));
+                var tablesToRemove = db.Tables.Where(t => !freshTableKeys.Contains((t.Schema, t.Name))).ToList();
+
+                if (tablesToRemove.Any())
+                {
+                    foreach (var table in tablesToRemove)
+                    {
+                        db.Tables.Remove(table);
+                    }
+                    removedTablesCount = tablesToRemove.Count;
+                    hasSchemaChanges = true;
+                }
+
                 if (hasSchemaChanges)
                 {
                     // Audit Log
@@ -429,10 +444,10 @@ namespace CatalogoBCV.Controllers
                         EntityType = "CatalogDatabase",
                         EntityId = db.DatabaseName,
                         Username = User.Identity?.Name ?? "System",
-                        NewValue = $"{newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas."
+                        NewValue = $"{newTablesCount} novas tabelas, {removedTablesCount} tabelas removidas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas."
                     });
                     
-                    TempData["SuccessMessage"] = $"Atualização concluída: {newTablesCount} novas tabelas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas.";
+                    TempData["SuccessMessage"] = $"Atualização concluída: {newTablesCount} novas tabelas, {removedTablesCount} tabelas removidas, {newColumnsCount} novas colunas, {updatedColumnsCount} colunas atualizadas.";
                 }
 
                 if (hasSchemaChanges || hasStatsChanges)
