@@ -47,12 +47,36 @@ else
     }
 }
 
-@if ((ViewBag.Embedded as bool?) != true)
-{
-    <div>
-        <a asp-controller="Catalog" asp-action="Details" asp-route-id="@ViewBag.DbId" class="btn btn-secondary mb-3">Voltar</a>
+<div class="mb-3 d-flex flex-wrap justify-content-between align-items-center" id="graph-toolbar">
+    <div class="d-flex flex-wrap align-items-center mb-2">
+        @if ((ViewBag.Embedded as bool?) != true)
+        {
+            <a asp-controller="Catalog" asp-action="Details" asp-route-id="@ViewBag.DbId" class="btn btn-secondary btn-sm me-2">Voltar</a>
+        }
+        <div class="btn-group btn-group-sm me-2" role="group" aria-label="Zoom">
+            <button type="button" class="btn btn-outline-secondary" id="btnZoomIn">Zoom +</button>
+            <button type="button" class="btn btn-outline-secondary" id="btnZoomOut">Zoom -</button>
+            <button type="button" class="btn btn-outline-secondary" id="btnResetView">Repor vista</button>
+        </div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Layout">
+            <button type="button" class="btn btn-outline-primary active" id="btnLayoutCose">Layout força</button>
+            <button type="button" class="btn btn-outline-primary" id="btnLayoutDagre">Layout hierárquico</button>
+        </div>
     </div>
-}
+    <div class="d-flex flex-wrap mb-2 align-items-center">
+        <div class="btn-group btn-group-sm me-2" role="group" aria-label="Filtrar tipo de tabela" id="graph-type-filters">
+            <input type="checkbox" class="btn-check" id="filterDim" autocomplete="off" checked>
+            <label class="btn btn-outline-light text-dark" for="filterDim">Dimensões</label>
+            <input type="checkbox" class="btn-check" id="filterFact" autocomplete="off" checked>
+            <label class="btn btn-outline-light text-dark" for="filterFact">Factos</label>
+            <input type="checkbox" class="btn-check" id="filterTime" autocomplete="off" checked>
+            <label class="btn btn-outline-light text-dark" for="filterTime">Tempo</label>
+        </div>
+        <button type="button" class="btn btn-outline-success btn-sm" id="btnDownloadGraph">
+            <i class="bi bi-download"></i> Download
+        </button>
+    </div>
+</div>
 
 <div id="cy"></div>
 
@@ -187,6 +211,28 @@ else
                     }
                 },
                 {
+                    selector: '.faded',
+                    style: {
+                        'opacity': 0.15
+                    }
+                },
+                {
+                    selector: 'node.highlighted',
+                    style: {
+                        'border-width': 4,
+                        'border-color': '#ffc107',
+                        'z-index': 9999
+                    }
+                },
+                {
+                    selector: 'edge.highlighted',
+                    style: {
+                        'line-color': '#ffc107',
+                        'target-arrow-color': '#ffc107',
+                        'width': 3
+                    }
+                },
+                {
                     selector: 'edge',
                     style: {
                         'width': 2,
@@ -208,6 +254,158 @@ else
         });
 
         // Add tooltip or click event to show columns
+        function applyTypeFilter() {
+            const dim = document.getElementById('filterDim');
+            const fact = document.getElementById('filterFact');
+            const time = document.getElementById('filterTime');
+
+            const typesToShow = [];
+            if (dim && dim.checked) typesToShow.push('dim');
+            if (fact && fact.checked) typesToShow.push('fact');
+            if (time && time.checked) typesToShow.push('time');
+
+            if (typesToShow.length === 0) {
+                cy.elements().style('display', 'none');
+                return;
+            }
+
+            cy.nodes().forEach(n => {
+                const t = n.data('type') || 'dim';
+                if (typesToShow.indexOf(t) !== -1) {
+                    n.style('display', 'element');
+                } else {
+                    n.style('display', 'none');
+                }
+            });
+
+            cy.edges().forEach(e => {
+                const srcVisible = e.source().style('display') !== 'none';
+                const tgtVisible = e.target().style('display') !== 'none';
+                if (srcVisible && tgtVisible) {
+                    e.style('display', 'element');
+                } else {
+                    e.style('display', 'none');
+                }
+            });
+
+            const visibleNodes = cy.nodes().filter(':visible');
+            if (visibleNodes.length > 0) {
+                cy.fit(visibleNodes, 30);
+            }
+        }
+
+        function runLayout(name) {
+            const coseLayout = {
+                name: 'cose',
+                animate: true,
+                randomize: true,
+                componentSpacing: 100,
+                nodeRepulsion: function (node) { return 400000; },
+                nodeOverlap: 20,
+                idealEdgeLength: function (edge) { return 150; },
+                edgeElasticity: function (edge) { return 100; },
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0,
+                fit: true,
+                padding: 30
+            };
+
+            const dagreLayout = {
+                name: 'dagre',
+                fit: true,
+                padding: 30,
+                rankDir: 'LR',
+                nodeSep: 50,
+                rankSep: 100,
+                edgeSep: 10
+            };
+
+            const layoutConfig = name === 'dagre' ? dagreLayout : coseLayout;
+            cy.layout(layoutConfig).run();
+        }
+
+        const btnZoomIn = document.getElementById('btnZoomIn');
+        const btnZoomOut = document.getElementById('btnZoomOut');
+        const btnResetView = document.getElementById('btnResetView');
+        const btnLayoutCose = document.getElementById('btnLayoutCose');
+        const btnLayoutDagre = document.getElementById('btnLayoutDagre');
+        const btnDownloadGraph = document.getElementById('btnDownloadGraph');
+
+        if (btnZoomIn) {
+            btnZoomIn.addEventListener('click', function () {
+                const currentZoom = cy.zoom();
+                const newZoom = Math.min(currentZoom + 0.2, 3);
+                cy.zoom({
+                    level: newZoom,
+                    renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 }
+                });
+            });
+        }
+
+        if (btnZoomOut) {
+            btnZoomOut.addEventListener('click', function () {
+                const currentZoom = cy.zoom();
+                const newZoom = Math.max(currentZoom - 0.2, 0.2);
+                cy.zoom({
+                    level: newZoom,
+                    renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 }
+                });
+            });
+        }
+
+        if (btnResetView) {
+            btnResetView.addEventListener('click', function () {
+                cy.fit(cy.elements().filter(':visible'), 30);
+            });
+        }
+
+        if (btnLayoutCose && btnLayoutDagre) {
+            btnLayoutCose.addEventListener('click', function () {
+                btnLayoutCose.classList.add('active');
+                btnLayoutDagre.classList.remove('active');
+                runLayout('cose');
+            });
+
+            btnLayoutDagre.addEventListener('click', function () {
+                btnLayoutDagre.classList.add('active');
+                btnLayoutCose.classList.remove('active');
+                runLayout('dagre');
+            });
+        }
+
+        if (btnDownloadGraph) {
+            btnDownloadGraph.addEventListener('click', function () {
+                const pngData = cy.png({
+                    full: true,
+                    scale: 2,
+                    bg: '#ffffff'
+                });
+
+                const link = document.createElement('a');
+                link.href = pngData;
+                link.download = 'grafo.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        const filterDim = document.getElementById('filterDim');
+        const filterFact = document.getElementById('filterFact');
+        const filterTime = document.getElementById('filterTime');
+
+        [filterDim, filterFact, filterTime].forEach(el => {
+            if (el) {
+                el.addEventListener('change', applyTypeFilter);
+            }
+        });
+
+        applyTypeFilter();
+
         cy.on('tap', 'node', function(evt){
             const node = evt.target;
             const columns = node.data('columns');
@@ -226,7 +424,6 @@ else
                 content += '<em>No columns</em>';
             }
             
-            // Remove existing tooltip
             const existing = document.getElementById('cy-tooltip');
             if(existing) existing.remove();
 
@@ -243,7 +440,6 @@ else
             tooltip.style.maxHeight = '300px';
             tooltip.style.overflow = 'auto';
             
-            // Close button
             const closeBtn = document.createElement('button');
             closeBtn.innerHTML = '×';
             closeBtn.style.float = 'right';
@@ -263,7 +459,6 @@ else
             const renderedPosition = node.renderedPosition();
             const containerPos = document.getElementById('cy').getBoundingClientRect();
             
-            // Calculate position relative to viewport
             let left = containerPos.left + renderedPosition.x + 20;
             let top = containerPos.top + renderedPosition.y;
             
@@ -271,10 +466,22 @@ else
             tooltip.style.top = top + 'px';
         });
         
+        cy.on('tap', 'node', function(evt){
+            const node = evt.target;
+            cy.elements().removeClass('faded');
+            cy.elements().removeClass('highlighted');
+
+            const neighborhood = node.closedNeighborhood();
+            cy.elements().subtract(neighborhood).addClass('faded');
+            neighborhood.addClass('highlighted');
+        });
+
         cy.on('tap', function(evt){
             if(evt.target === cy){
                 const tooltip = document.getElementById('cy-tooltip');
                 if(tooltip) tooltip.remove();
+                cy.elements().removeClass('faded');
+                cy.elements().removeClass('highlighted');
             }
         });
     });
