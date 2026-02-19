@@ -209,7 +209,7 @@
                                     <td>
                                         @(table.SourceSystem?.Name ?? "-")
                                     </td>
-                                    <td class="text-end font-monospace small">
+                                    <td class="text-end font-monospace small" data-order="@(table.RowCount ?? 0)">
                                         @(table.RowCount.HasValue ? table.RowCount.Value.ToString("N0") : "-")
                                     </td>
                                     <td class="text-truncate" style="max-width: 200px;" title="@StripHtml(table.Description)">
@@ -342,6 +342,9 @@
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
+                "columnDefs": [
+                    { "type": "num", "targets": 6 }
+                ],
                 "dom": 'rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
 
