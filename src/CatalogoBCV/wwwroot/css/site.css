@@ -139,12 +139,6 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--accent-orange);
 }
@@ -270,4 +264,292 @@ h1, h2, h3, h4, h5, h6 {
 .app-sidebar .nav-link.active {
     color: #fff !important;
     background-color: var(--primary-blue) !important;
+}
+
+/* Compact application shell */
+.app-compact {
+  --compact-radius: 6px;
+  --compact-gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.app-compact .app-header.navbar {
+  min-height: 44px;
+  padding-block: 0.15rem;
+}
+
+.app-compact .app-header .nav-link,
+.app-compact .app-header .btn.nav-link {
+  min-height: 34px;
+  padding: 0.35rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-compact .app-search {
+  min-width: clamp(220px, 24vw, 360px);
+}
+
+.app-compact .app-search .form-control,
+.app-compact .app-search .btn {
+  min-height: 32px;
+  padding-block: 0.25rem;
+}
+
+.app-compact .sidebar-brand {
+  min-height: 48px;
+  padding-block: 0.4rem;
+}
+
+.app-compact .brand-link {
+  gap: 0.45rem;
+}
+
+.app-compact .brand-image {
+  max-height: 28px !important;
+}
+
+.app-compact .brand-text {
+  font-size: 0.95rem;
+  font-weight: 600 !important;
+}
+
+.app-compact .sidebar-wrapper nav.mt-2 {
+  margin-top: 0.35rem !important;
+}
+
+.app-compact .sidebar-menu .nav-link {
+  min-height: 34px;
+  padding: 0.42rem 0.75rem;
+  border-radius: var(--compact-radius);
+  margin: 0.05rem 0.45rem;
+}
+
+.app-compact .sidebar-menu .nav-icon {
+  font-size: 0.95rem;
+  margin-right: 0.45rem;
+}
+
+.app-compact .sidebar-menu p {
+  font-size: 0.88rem;
+}
+
+.app-compact .nav-header {
+  padding: 0.55rem 0.9rem 0.2rem;
+  font-size: 0.68rem;
+  letter-spacing: 0;
+}
+
+.app-compact .app-content-header {
+  padding: 0.75rem 0 0.45rem;
+}
+
+.app-compact .app-content-header h1,
+.app-compact .app-content-header h2,
+.app-compact .app-content-header h3 {
+  font-size: 1.18rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.app-compact .breadcrumb {
+  margin-bottom: 0;
+  font-size: 0.8rem;
+}
+
+.app-compact .app-content {
+  padding-block: 0.45rem 0.85rem;
+}
+
+.app-compact .container-fluid {
+  padding-inline: 0.85rem;
+}
+
+.app-compact .row {
+  --bs-gutter-x: 0.85rem;
+}
+
+.app-compact .row.mb-4,
+.app-compact .col-lg-6.mb-4,
+.app-compact .col-lg-8.mb-4,
+.app-compact .col-lg-4.mb-4,
+.app-compact .col-xl-3.mb-4,
+.app-compact .col-md-6.mb-4 {
+  margin-bottom: 0.85rem !important;
+}
+
+.app-compact .card,
+.app-compact .info-box,
+.app-compact .table-responsive,
+.app-compact .card-custom {
+  border-radius: var(--compact-radius);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+.app-compact .card {
+  margin-bottom: 0.85rem;
+}
+
+.app-compact .card-header {
+  min-height: 0;
+  padding: 0.55rem 0.75rem;
+}
+
+.app-compact .card-title,
+.app-compact .card-header h1,
+.app-compact .card-header h2,
+.app-compact .card-header h3,
+.app-compact .card-header h4,
+.app-compact .card-header h5,
+.app-compact .card-header h6 {
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.app-compact .card-body,
+.app-compact .card-footer {
+  padding: 0.75rem;
+}
+
+.app-compact .card-custom {
+  padding: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.app-compact .info-box {
+  min-height: 66px;
+  margin-bottom: 0.75rem;
+}
+
+.app-compact .info-box-icon {
+  width: 48px;
+  font-size: 1.25rem;
+}
+
+.app-compact .info-box-content {
+  padding: 0.45rem 0.65rem;
+}
+
+.app-compact .info-box-text {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.app-compact .info-box-number {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.app-compact .table th,
+.app-compact .table td {
+  padding: 0.48rem 0.6rem;
+  line-height: 1.25;
+}
+
+.app-compact .table thead th {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.app-compact .table small,
+.app-compact small {
+  font-size: 0.78rem;
+}
+
+.app-compact .btn {
+  border-radius: var(--compact-radius);
+  padding: 0.32rem 0.65rem;
+  line-height: 1.25;
+}
+
+.app-compact .btn-sm,
+.app-compact .btn-group-sm > .btn {
+  padding: 0.22rem 0.45rem;
+  font-size: 0.78rem;
+}
+
+.app-compact .btn i {
+  line-height: 1;
+}
+
+.app-compact .form-label,
+.app-compact .control-label {
+  margin-bottom: 0.28rem;
+  font-size: 0.84rem;
+}
+
+.app-compact .form-control,
+.app-compact .form-select {
+  min-height: 34px;
+  border-radius: var(--compact-radius);
+  padding: 0.38rem 0.55rem;
+  font-size: 0.88rem;
+}
+
+.app-compact textarea.form-control {
+  min-height: 84px;
+}
+
+.app-compact .form-group,
+.app-compact .mb-3 {
+  margin-bottom: 0.75rem !important;
+}
+
+.app-compact .alert {
+  padding: 0.55rem 0.8rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--compact-radius);
+}
+
+.app-compact .badge {
+  border-radius: 999px;
+  padding: 0.28em 0.5em;
+  font-weight: 600;
+}
+
+.app-compact .progress {
+  height: 0.45rem;
+  border-radius: 999px;
+}
+
+.app-compact .list-group-item {
+  padding: 0.55rem 0.75rem;
+}
+
+.app-compact .dropdown-menu {
+  border-radius: var(--compact-radius);
+  font-size: 0.86rem;
+  padding: 0.35rem;
+}
+
+.app-compact .dropdown-item {
+  border-radius: 4px;
+  padding: 0.35rem 0.55rem;
+}
+
+.app-compact .chart-pie {
+  height: 14rem;
+}
+
+.app-compact .app-footer {
+  min-height: 36px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 767.98px) {
+  .app-compact .app-search {
+    min-width: 0;
+  }
+
+  .app-compact .app-content-header .row > [class*="col-"] {
+    margin-bottom: 0.35rem;
+  }
+
+  .app-compact .breadcrumb.float-sm-end {
+    float: none !important;
+  }
 }

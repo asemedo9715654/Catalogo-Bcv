@@ -86,7 +86,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CatalogoBCV.styles.css" asp-append-version="true" />
 </head>
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary app-compact">
     <div class="app-wrapper">
         <!-- Header -->
         <nav class="app-header navbar navbar-expand bg-body">
@@ -114,9 +114,9 @@
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item d-none d-md-block">
-                             <form class="d-flex position-relative" style="min-width: 300px;">
+                             <form class="d-flex position-relative app-search">
                                 <div class="input-group">
-                                    <input class="form-control" type="search" placeholder="Pesquisar bases, tabelas, colunas, tags..." aria-label="Search" id="globalSearchInput" autocomplete="off">
+                                    <input class="form-control" type="search" placeholder="Pesquisar..." aria-label="Search" id="globalSearchInput" autocomplete="off">
                                     <button class="btn btn-outline-secondary" type="button">
                                         <i class="bi bi-search"></i>
                                     </button>
